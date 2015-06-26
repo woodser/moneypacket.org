@@ -1,8 +1,8 @@
 moneypacket.org
 Open Source Client-Side Standalone Bitcoin File Generator
 
-Tips: 1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo
-
 2015-06-26
 moneypacket.org-v0.1
 - Initial release
+
+Tips: 1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo
