@@ -1,0 +1,197 @@
+* {
+	font-family: calibri, arial, verdana, sans-serif;
+	font-size: 16px;
+}
+
+#container {
+	margin-top:20px;
+	margin-left:auto;
+	margin-right:auto;
+	text-align:center;
+	width:650px;
+	/* border:solid; */
+}
+
+#title {
+	font-size:35px;
+}
+
+img[src="img/btc_logo.png"] {
+	width:40px;
+	height:40px;
+	margin-right:10px;
+	vertical-align:middle;
+}
+
+#subtitle {
+	font-size:20px;
+	font-style:italic;
+	margin-top:5px;
+	margin-bottom:25px;
+}
+
+#footer {
+	margin-top:15px;
+	text-align:center;
+	display:block;
+}
+
+#tips {
+	text-align:center;
+	font-size:15px;
+	margin-bottom:10px;
+}
+
+#tip_address {
+	font-size:15px;
+}
+
+#footer_links {
+	font-size:15px;
+	margin-bottom:10px;
+}
+
+#legal {
+	font-size:14px;
+	margin-top:30px;
+	margin-bottom:10px;
+}
+
+#main_tabs {
+	text-align:center;
+	margin-bottom: 0px;
+}
+
+#main_tabs nav a {
+	text-decoration:none;
+	height:30px;
+	line-height:30px;
+	padding:5px 5px 0px 5px;
+	margin:0px 5px 0px 5px;
+	color:black;
+	/* border:solid; */
+}
+
+.main_tab_link.active, .import_tab_link.active {
+	font-weight: bold;
+	border-bottom:1px solid blue;
+}
+
+nav a:hover {
+	/* color:green; */
+	/* border-bottom:1px solid #000; */
+	text-shadow: 3px 3px 6px #999999;
+}
+
+.main_tab, .import_tab {
+	display:none;
+}
+
+.main_tab.active, .import_tab.active {
+	width:100%;
+	display:inline-block;
+}
+
+fieldset {
+	border:2px solid;
+	padding: 5px 5px 5px 5px;
+	margin:0 0 40px 0;
+	text-align:left;
+}
+
+fieldset input[type="checkbox"] {
+	margin: 0px 5px 0px 0px;
+}
+
+fieldset input[type="password"] {
+	padding: 5px;
+	margin: 0px 10px 0px 10px;
+	width: 110px;
+}
+
+fieldset input[type="text"] {
+	padding: 5px;
+	margin: 0px 10px 0px 5px;
+	width: 100px;
+}
+
+fieldset legend {
+	text-align:left;
+	font-weight: bold;
+	padding: 0px 15px 0px 15px;
+}
+
+.section_row {
+	margin: 10px 10px 10px 10px;
+	padding: 5px 5px 5px 5px;
+	width:100%;
+	/* border:1px solid; */
+}
+
+.section_row button:first-child {
+	width:95%;
+	padding: 7px;
+	box-sizing:border-box;
+}
+
+.import_tab {
+	display: none;
+}
+
+.import_tab.active {
+	display:inline-block;
+}
+
+#import_tabs nav > a {
+	text-decoration:none;
+	margin: 0 10px 0 0px;
+	color:black;
+}
+
+#import_tabs nav a {
+	text-decoration:none;
+	margin: 0 10px 0 5px;
+	color:black;
+}
+
+#new_mp_copy_textarea, #import_mp_paste_textarea {
+	min-width:93%;
+}
+
+#import_mp_send_address {
+	width: 300px;
+}
+
+.display_none {
+	display:none;
+}
+
+.display_default {
+	display:default;
+}
+
+a:visited {
+	color:blue;
+}
+
+#import_mp_header_balance {
+	color:black;
+	text-decoration:none;
+}
+
+.qrcode {
+	width:95%;
+}
+
+#new_mp_save_section, #import_mp_section {
+	margin-bottom:25px;
+}
+
+.not-active {
+   pointer-events: none;
+   cursor: default;
+}
+
+#new_mp_unecrypted_warning {
+	max-width:95%;
+}
