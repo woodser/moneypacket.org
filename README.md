@@ -1,8 +1,13 @@
 # moneypacket.org
-Open Source Client-Side Standalone Bitcoin File Generator
+Digital envelopes for bitcoin, no trusted third parties.
 
-Send and receive bitcoins over email, dropbox, USB, etc.
+A money packet is a file which contains bitcoins, like a digital envelope containing money.
 
-moneypacket.org lets you store bitcoins into files, “money packets”, on your local computer.  These files contain "real bitcoins" and can be shared using conventional technologies or simply backed-up for safekeeping.  Money packets can be redeemed to an address of your choosing or to a new money packet, meaning recipients don’t need a bitcoin wallet to receive funds.  Open source, client-side, and no trusted third parties holding funds for you.
+Money packets can be shared over email or Dropbox or simply backed up, just like any other file.
 
-“Send bitcoins to Grandma over email.”
+This site lets you to create money packets and access their funds.
+
+- Recipients don't need a bitcoin wallet to receive funds.
+- This service is free, open source, and 100% client-side.
+- No accounts or trusted third parties are involved.
+- All funds are password-protected.
