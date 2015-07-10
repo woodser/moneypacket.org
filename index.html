@@ -1,870 +1,275 @@
-<!--
-Copyright (c) 2015 moneypacket.org
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
- -->
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 	<head>
 		<meta http-equiv="content-type" content="text/html;charset=utf-8" />
 		<title>moneypacket.org</title>
-		<link rel="stylesheet" type="text/css" href="css/style.css"/>
+		
+		<link rel="stylesheet" type="text/css" href="style.css"/>
+		
 		<script src="lib/jquery-2.1.4.min.js"></script>
+		<script src="lib/jquery-ui.min.js"></script>
 		<script src="lib/bitcore.min.js"></script>
 		<script src="lib/bitcore-explorers.min.js"></script>
 		<script src="lib/sjcl.js"></script>
 		<script src="lib/qrcode.min.js"></script>
+		<script src="controller.js"></script>
 	</head>
 	<body>
 		<div id="container">
-			<div id="title"><img src="img/btc_logo.png">moneypacket.org</div>
-			<div id="subtitle">Open Source Client-Side Standalone Bitcoin File Generator</div>
-			<div id="main_tabs">
-				<nav>
-					<a href="#" id="new_mp_link" class="main_tab_link active" onclick="on_main_tab_link(this, 'new_mp_tab')">New</a>|<a href="#" id="import_mp_link" class="main_tab_link" onclick="on_main_tab_link(this, 'import_mp_tab')">Import</a>
-				</nav>
+			<div id="top_div">
+				<div id="title_div"><img src="img/btc_logo.png"><a href="index.html" id="title">moneypacket.org</a></div><br>
+				<div id="subtitle_div">Digital envelopes for bitcoin, no trusted third parties.</div>
 			</div>
- 			<div id="new_mp_tab" class="main_tab active">
- 				<div class="section_header">&nbsp;</div>
-				<fieldset>
-					<legend>Create money packet</legend>
-					<div class="section_row">
-						<input type="checkbox" id="new_mp_password_checkbox" onclick="on_new_mp_password_checkbox()" checked autocomplete="off">Password: <input type="password" id="new_mp_password1">Confirm:<input type="password" id="new_mp_password2">
-						<div id="new_mp_password_error" style="display:inline-block;color:#E80000"></div>
-					</div>
-					<div class="section_row" id="new_mp_require_password_div"><input type="checkbox" id="new_mp_require_password_checkbox" checked autocomplete="off">Require password to view funds</div>
-					<div class="section_row display_none" id="new_mp_unecrypted_warning"><img src="img/warning.jpg" style="width:25px;heigh:21.83px">&nbsp;Your funds won't be encrypted.  Anyone who has the money packet can spend the funds!</div>
-					<div class="section_row"><div><button type="button" id="new_mp_button" onclick="on_new_mp_button()">Create Money Packet</button></div></div>
-				</fieldset>
-				<fieldset id="new_mp_save_section" style="display:none">
-					<legend>Save money packet</legend>
-					<div class="section_row"><a href="#" onclick="event.preventDefault();on_new_mp_download_link()" target="_blank">Download</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<a href="#" id="new_mp_copy_link" onclick="event.preventDefault();on_new_mp_copy_link()">&#9654&nbsp;Copy/paste</a></div>
-					<div id="new_mp_copy_row" style="display:none">
-						<div class="section_row"><b>This is your money packet.&nbsp;&nbsp;Save this text somewhere safe:</b><br><textarea id="new_mp_copy_textarea" rows="3" readonly></textarea></div>
-					</div>
-					<div class="section_row"><input type="checkbox" id="new_mp_saved_checkbox" onclick="on_new_mp_saved_checkbox()" autocomplete="off">After your money packet is saved, click here to add funds</div>
-				</fieldset>
-				<div id="new_mp_add_section" style="display:none">
-					<div class="section_header" id="new_mp_add_header" style="text-align:right;">---</div>
-					<fieldset>
-						<legend>Add funds</legend>
-						<div class="section_row qrcode" style="text-align:center"><div id="new_mp_qrcode_div" style="display:inline-block"></div><br><div id="new_mp_qrcode_address"></div></div>
-					</fieldset>
+			<div id="header_div">
+				<div id="offline_div">Offline</div>
+				<div id="preferred_unit_div">
+					Preferred units: <select id="preferred_unit_select">
+						<option value="BTC">BTC&nbsp;&nbsp;&nbsp;&nbsp;</option>
+						<option value="bits">bits</option>
+					</select>
 				</div>
 			</div>
-			<div id="import_mp_tab" class="main_tab">
-				<div class="section_header" id="import_mp_header" style="text-align:right;">&nbsp;<a href="#" id="import_mp_header_balance" onclick="event.preventDefault();on_import_mp_header_balance()"></a><div id="import_mp_header_msg" style="display:inline-block;margin-left:4px;"></div></div>			
-				<fieldset>	
-					<legend>Import money packet</legend>
-					<div id="import_tabs" class="section_row">
-						<nav>
-							<a href="#" id="import_mp_upload_link" class="import_tab_link active" onclick="event.preventDefault();on_import_mp_link(this, 'import_mp_upload_tab')">Upload</a>|
-							<a href="#" id="import_mp_paste_link" class="import_tab_link" onclick="event.preventDefault();on_import_mp_link(this, 'import_mp_paste_tab')">Copy/paste</a>
-						</nav>
+			<div id="body_div">
+				<div id="left_div"><img id="left_arrow" class="nav_arrow" src="img/arrow.png"></div>
+				<div id="center_div">
+				
+					<!-- Background -->
+					<!-- <div id="background_page" class="page"></div> -->
+				
+					<!-- Home page -->
+					<div id="home_page" class="page">
+						<div>
+							<p style="text-align:left">A money packet is a file which contains bitcoins, like a digital envelope containing money.</p>
+							<p>Money packets can be shared over email or Dropbox or simply backed up, just like any other file.</p>
+							<p>This site lets you to create money packets and access their funds.</p>
+							<div class="checkmark_line"><img class="checkmark" src="img/checkmark.png">Recipients don't need a bitcoin wallet to receive funds.</div>
+							<div class="checkmark_line"><img class="checkmark" src="img/checkmark.png">This service is free, open source, and 100% client-side.</div>
+							<div class="checkmark_line"><img class="checkmark" src="img/checkmark.png">No accounts or trusted third parties are involved.</div>
+							<div class="checkmark_line"><img class="checkmark" src="img/checkmark.png">All funds are password-protected.</div>
+							<div>&nbsp;</div>
+							<div class="link_container">
+								<div class="nav_link" id="home_create_link">Create a new money packet<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="home_import_link">Import an existing money packet<img class="link_arrow" src="img/arrow.png"></div>
+							</div>
+						</div>
 					</div>
-					<div id="import_mp_upload_tab" class="import_tab active" style="padding:0;margin:0;">
-						<div class="section_row"><input type='file' id='upload' onchange='on_import_mp_upload(this.files)'></input></div>
+					
+					<!-- Import money packet pages -->
+					<div id="import_upload_page" class="page">
+						<div>
+							<p>Browse to a money packet on your computer.</p>
+							<p>If you received a money packet as an email attachment, save it to your computer, then browse to it.</p>
+							<p><input type='file' id='import_upload' onchange='on_import_upload(this.files)'></input></p>
+							<p id="import_upload_error" style="color:red;"></p>
+							<p>&nbsp;</p>
+							<div class="link_container">
+								<div class="nav_link" id="import_paste_link">I'd rather copy and paste the file contents instead<img class="link_arrow" src="img/arrow.png"></div>
+							</div>
+						</div>
 					</div>
-					<div id="import_mp_paste_tab" class="section_row import_tab" style="padding:0;margin:0;">
-						<div class="section_row"><textarea id="import_mp_paste_textarea" rows="3" spellcheck="false" placeholder="Paste money packet..."></textarea></div>
+					<div id="import_paste_page" class="page">
+						<div>
+							<p>Copy and paste the entire file contents of your money packet here:</p>
+							<p><textarea id="import_paste_textarea" rows="4" spellcheck="false" placeholder="Paste money packet here..."></textarea></p>
+							<p id="import_paste_error" style="color:red;"></p>
+						</div>
 					</div>
-					<div id="import_mp_password_row" style="display:none;padding:0;margin:0;">
-						<div class="section_row">Password:<input type='password' id='import_mp_password'></input><div id="import_mp_password_err" style="margin-left:15px;display:inline-block;color:#E80000"></div></div>
-						<div class="section_row"><button type="button" onclick="on_import_mp_unlock()">Unlock</button></div>
+					<div id="unlock_page" class="page">
+						<div>
+							<p>Your money packet was imported successfully.</p>
+							<p>Enter the password to access its funds.</p>
+							<p>If you received this money packet from someone, the sender should give you the password.</p>
+							<p>Password: <input type="password" id="import_password"></p>
+							<div class="button" id="unlock_button">Unlock</div>
+							<p id="import_password_error" style="color:red;"></p>
+						</div>
 					</div>
-					<div class="section_row" id="import_mp_err" style="text-align:center;color:#E80000;display:none;padding:0;"></div>
-				</fieldset>
-				<fieldset id="import_mp_send_section" style="display:none;">
-					<legend>Send funds</legend>
-					<div class="section_row">Address:<input type="text" id="import_mp_send_address" spellcheck="false"><canvas id="import_mp_send_address_checkmark" style="width:30px;height:22px;display:none;vertical-alignment:middle;"></canvas><div id="import_mp_send_address_err" style="margin-left:15px;display:inline-block;color:#E80000"></div></div>
-					<div class="section_row">Amount:<input type="text" id="import_mp_send_amt">BTC<div id="import_mp_send_amt_err" style="margin-left:15px;display:inline-block;color:#E80000"></div></div>
-					<div class="section_row"><div><button type="button" id="import_mp_send_button" onclick="on_import_mp_send()">Send</button></div></div>
-					<div class="section_row" id="import_mp_send_msg" style="display:none;text-align:center;"></div>
-				</fieldset>
-				<fieldset id="import_mp_add_section" style="display:none;">
-					<legend>Add funds</legend>
-					<div class="section_row qrcode" style="text-align:center"><div id="import_mp_qrcode_div" style="display:inline-block"></div><br><div id="import_mp_qrcode_address"></div></div>
-				</fieldset>
+					<div id="unlocked_page" class="page">
+						<div>
+							<p>Your money packet is unlocked!</p>
+							<p>The balance is <span id="unlocked_balance"></span>.</p>
+							<p>If you received this money packet from someone, the sender still has access to the funds until you move them.</p>
+							<p>&nbsp;</p>
+							<div class="link_container">
+								<div class="nav_link" id="unlocked_claim_mp_link">Withdraw funds to a new money packet<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="unlocked_claim_address_link">Withdraw funds to a bitcoin address<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="unlocked_add_link">Add funds to this money packet<img class="link_arrow" src="img/arrow.png"></div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Claim money packet to new money packet -->
+					<div id="claim_mp_password_page" class="page">
+						<div>
+							<p>Lets create a new money packet and transfer funds to it from the old money packet.</p>
+							<p>Enter a password to protect your new money packet.</p>
+							<p>This password will be required to access funds within the money packet later on, so <b><span style="color:red">don't lose it!</span></b></p>
+							<p>Password: <input type="password" id="claim_mp_password1"></input> Confirm: <input type="password" id="claim_mp_password2"></input></p>
+							<div class="button" id="claim_mp_set_password_button" >Create New Money Packet</div>
+							<p id="claim_mp_set_password_error" style="color:red;"></p>
+						</div>
+					</div>
+					<div id="claim_mp_download_page" class="page">
+						<div>
+							<p>Your new money packet has been created.</p>
+							<p>For safe keeping, lets save your new money packet before we transfer funds to it.</p>
+							<p>Remember where you save it!</p>
+							<div class="button" id="claim_mp_download_button">Download</div>
+							<p><input type="checkbox" id="claim_mp_download_confirm_checkbox" autocomplete="off">&nbsp;After your money packet is saved, click here to add funds</p>
+							<p>&nbsp;</p>
+							<div class="link_container">
+								<div class="nav_link" id="claim_mp_download_copy_link">I'd rather copy and paste the file contents instead<img class="link_arrow" src="img/arrow.png"></div>
+							</div>							
+						</div>
+					</div>
+					<div id="claim_mp_copy_page" class="page">
+						<div>
+							<p>This text represents your new encrypted money packet.</p>
+							<p>Copy and paste this text into a file on your computer, and don't lose it! :)</p>
+							<p><textarea id="claim_mp_copy_textarea" rows="4" readonly></textarea></p>
+							<p><input type="checkbox" id="claim_mp_copy_confirm_checkbox" autocomplete="off">&nbsp;After your money packet is saved, click here to add funds</p>
+						</div>
+					</div>
+					<div id="claim_mp_send_page" class="page">
+						<div>
+							<p>We're ready to transfer funds from your original money packet to your new one!</p>
+							<p>How much would you like to transfer?</p>
+							<p>Available balance: <span id="claim_mp_send_balance"></span></p>
+							<p><a href="#" id="claim_mp_send_full_balance">Send full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span id="claim_mp_send_symbol"></span>&nbsp;<input id="claim_mp_send_amt" type="text">&nbsp;<span id="claim_mp_send_code"></span>&nbsp;&nbsp;&nbsp;</p>
+							<p><span id="claim_mp_send_amt_error"></span></p>
+							<div id="claim_mp_send_button" class="button">Transfer</div>
+							<p id="claim_mp_send_msg"></p>
+						</div>
+					</div>	
+					<div id="claim_mp_done_page" class="page">
+						<div>
+							<p><span id="claim_mp_done_transfer_amt"></span> was successfully transferred to your new money packet.</p>
+							<p>We already saved your new money packet in an earlier step.</p>
+							<p>Your original money packet's balance is <span id="claim_mp_done_old_balance"></span>.</p>
+							<div class="link_container">
+								<div class="nav_link" id="claim_mp_done_another_link">Make another transaction<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="claim_mp_done_home_link">Back to home<img class="link_arrow" src="img/arrow.png"></div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Claim money packet to bitcoin address -->
+					<div id="claim_address_page" class="page">
+						<div>
+							<p>Withdraw funds from your money packet to a bitcoin address.</p>
+							<p>Enter the bitcoin address to receive the funds and an amount to send.</p>
+							<p>Available balance: <span id="claim_address_balance"></span></p>
+							<p>Receiving bitcoin address: <input type="text" id="claim_address" spellcheck="false">&nbsp;<canvas id="claim_address_checkmark" style="width:30px;height:22px;display:none;vertical-alignment:middle;"></canvas><br><span id="claim_address_msg"></span></p>
+							<p>&nbsp;<a href="#" id="claim_address_full_balance">Send full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span id="claim_address_symbol"></span>&nbsp;<input type="text" id="claim_address_amt">&nbsp;<span id="claim_address_code"></span></p>
+							<p><span id="claim_address_amt_msg"></span></p>
+							<div class="button" id="claim_address_send_button">Send</div>
+							<p id="claim_address_send_msg"></p>
+						</div>
+					</div>
+					<div id="claim_address_done_page" class="page">
+						<div>
+							<p><span id="claim_address_done_transfer_amt"></span> was successfully sent to <span id="claim_address_done_address"></span>.</p>
+							<p>Your money packet's new balance is <span id="claim_address_done_balance"></span>.</p>
+							<p>&nbsp;</p>
+							<div class="link_container">
+								<div class="nav_link" id="claim_address_done_another_link">Make another transaction<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="claim_address_done_home_link">Back to home<img class="link_arrow" src="img/arrow.png"></div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- Add funds to existing money packet -->
+					<div id="unlocked_mp_add_page" class="page">
+						<div>
+							<p>This is your money packet's receive address.</p>
+							<p>Send funds to this address to load your money packet.</p>
+							<p>Amount:&nbsp;<span id="unlocked_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="unlocked_mp_add_amt">&nbsp;<span id="unlocked_mp_add_code"></span>&nbsp;<span id="unlocked_mp_add_amt_error"></span></p>
+							<div id="unlocked_mp_add_btc_conversion" style="text-align:center;color:green">&nbsp;</div>
+							<div style="width:100%;text-align:center"><div id="unlocked_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></div></div>
+							<div id="unlocked_mp_qrcode_address" style="text-align:center;"></div>
+							<p id="unlocked_mp_add_waiting" style="text-align:center;">Waiting for funds...</p>
+						</div>
+					</div>
+					<div id="unlocked_mp_add_done_page" class="page">
+						<div>
+							<div>
+								<p>Funds added successfully!</p>
+								<p>Your money packet's balance is <span id="unlocked_mp_add_done_balance"></span>.</p>
+								<p>From here you could email it to a friend or save it for a rainy day, whatever you want to do!</p>
+								<p>Thank you for using this service!</p>
+								<p>&nbsp;</p>
+								<div class="link_container">
+									<div class="nav_link" id="unlocked_mp_add_another_link">Make another transaction<img class="link_arrow" src="img/arrow.png"></div>
+									<div class="nav_link" id="unlocked_mp_add_home_link">Go back home<img class="link_arrow" src="img/arrow.png"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+							
+					<!-- Create new money packet pages -->
+					<div id="new_mp_password_page" class="page">
+						<div>
+							<p>Enter a password to protect your money packet.</p>
+							<p>This password will be required to access funds within the money packet later on, so <b><span style="color:red">don't lose it!</span></b></p>
+							<p>Password: <input type="password" id="new_mp_password1"></input>&nbsp;&nbsp;&nbsp;&nbsp;Confirm: <input type="password" id="new_mp_password2"></input></p>
+							<div class="button" id="new_mp_set_password_button">Create Money Packet</div>
+							<p id="new_mp_set_password_error" style="color:red;"></p>
+						</div>
+					</div>
+					<div id="new_mp_download_page" class="page">
+						<div>
+							<p>Your money packet has been created.</p>
+							<p>For safe keeping, lets save it to your device before we add funds.</p>
+							<p>Remember where you save it!</p>
+							<div class="button" id="new_mp_download_button">Download</div>
+							<input type="checkbox" id="new_mp_download_confirm_checkbox" autocomplete="off">&nbsp;After your money packet is saved, click here to add funds</p>
+							<p>&nbsp;</p>
+							<div class="link_container">
+								<div class="nav_link" id="new_mp_download_copy_link">I'd rather copy and paste the file contents instead<img class="link_arrow" src="img/arrow.png"></div>
+							</div>						
+						</div>
+					</div>
+					<div id="new_mp_copy_page" class="page">
+						<div>
+							<p>This text represents your encrypted money packet.</p>
+							<p>Copy and paste this text into a file on your computer, and don't lose it! :)</p>
+							<p><textarea id="new_mp_copy_textarea" rows="4" readonly></textarea></p>
+							<p><input type="checkbox" id="new_mp_copy_confirm_checkbox" autocomplete="off">&nbsp;After your money packet is saved, click here to add funds</p>
+						</div>
+					</div>
+					<div id="new_mp_add_page" class="page">
+						<div>
+							<p>This is your money packet's receive address.</p>
+							<p>Send funds to this address to load your money packet.</p>
+							<p>Amount:&nbsp;<span id="new_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="new_mp_add_amt">&nbsp;<span id="new_mp_add_code"></span>&nbsp;<span id="new_mp_add_amt_error"></span></p>
+							<div id="new_mp_add_btc_conversion" style="text-align:center;color:green">&nbsp;</div>
+							<div style="width:100%;text-align:center"><div id="new_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></div></div>
+							<div id="new_mp_qrcode_address" style="text-align:center;"></div>
+							<p id="new_mp_add_waiting" style="text-align:center;">Waiting for funds...</p>
+						</div>
+					</div>
+					<div id="new_mp_add_done_page" class="page">
+						<div>
+							<p>Funds added successfully!</p>
+							<p>Your money packet's balance is <span id="new_mp_add_done_balance"></span>.</p>
+							<p>We already saved your money packet in an earlier step.</p>
+							<p>From here you could email it to a friend or save it for a rainy day, whatever you want to do!</p>
+							<p>Thank you for using this service!</p>
+							<p>&nbsp;</p>
+							<div class="link_container">
+								<div class="nav_link" id="new_mp_add_home_link">Go back home<img class="link_arrow" src="img/arrow.png"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="right_div"><img id="right_arrow" class="nav_arrow" src="img/arrow.png"></div>
 			</div>
-			
-			<!-- <div id="about_tab">
-				About...		
-			</div>  -->
-			<div id="footer">
-				<div id="footer_links"><a href="https://github.com/woodser/moneypacket.org" target="_blank">source</a> | <a href="https://github.com/woodser/moneypacket.org/archive/master.zip">zip</a> | <a href="CHANGELOG.txt" target="_blank">version 0.1 alpha</a></div>
-				<div id="tips">Tips: <div id="tip_address" style="display:inline-block;"></div></div>			
+			<div id="footer_div">
+				<div id="footer_links"><a href="https://github.com/woodser/moneypacket.org" target="_blank">source</a> | <a href="https://github.com/woodser/moneypacket.org/archive/master.zip">zip</a> | <a href="CHANGELOG.txt" target="_blank">version 0.2 alpha</a></div>
+				<div id="tips">Tips: 1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo</div>			
 				<div id="legal">&#169;moneypacket.org.  JavaScript copyrights included in the source.  No warranty.</div>
 			</div>
 		</div>
-		
-		<script type="text/javascript">
-			// dependencies
-			var bitcore = require('bitcore');
-			var insight = require('bitcore-explorers').Insight();
-			var sjcl = require ('sjcl');
-			
-			// global variables
-			var new_mp;
-			var save_mp;
-			var import_txt;
-			var imported_mp;
-			var unlocked_mp;
-			var new_mp_qrcode;
-			var unlocked_mp_qrcode;
-			var imported_mp_info;
-			var new_mp_listener;
-			var imported_mp_listener;
-			var REFRESH_INTERVAL = 2000;	// auto balance update refresh rate
-			
-			// tips :)
-			var TIP_ADDRESS = "1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo";
-			$("#tip_address").text(TIP_ADDRESS);
-			
-			// IE, le sigh
-			var isIE = /*@cc_on!@*/false || !!document.documentMode;
-			
-			/**
-			 * Initialization.
-			 */
-			$(document).ready(function() {				
-				// listen to changes on import textarea
-				$("#import_mp_paste_textarea").on('input', function() {
-					on_import_mp_paste();
-				});
-				
-				// register enter key with import password
-				$("#import_mp_password").keyup(function(event){
-				    if (event.keyCode == 13) {
-				    	on_import_mp_unlock();
-				    }
-				});
-				
-				// listen to changes on import send address
-				$("#import_mp_send_address").on('input', function() {
-					on_send_address();
-				});
-				
-				// listen to changes on import send amount
-				$("#import_mp_send_amt").on('input', function() {
-					on_send_amt();
-				});
-				
-				// listen to changes on create money packet
-				$("#new_mp_password1").keyup(function(event){
-				    if (event.keyCode == 13) {
-				    	on_new_mp_button();
-				    }
-				});
-				$("#new_mp_password2").keyup(function(event){
-				    if (event.keyCode == 13) {
-				    	on_new_mp_button();
-				    }
-				});
-			});
-			
-			/**
-			 * Repeatedly invokes the controller's callback every time interval.
-			 */
-			function timer(controller, interval) {
-				setTimeout(function() {
-					if (controller.stop()) return;
-					controller.callback();
-					timer(controller, interval);
-				}, interval);
-			}
-		
-			/**
-			 * Click a main tab.
-			 */
-			function on_main_tab_link(elem, tab_id) {
-				$(".main_tab_link").each(function(idx, elem) {
-					elem.setAttribute("class", "main_tab_link");
-				});
-				elem.setAttribute("class", "main_tab_link active");
-				
-				$(".main_tab").each(function(idx, elem) {
-					elem.setAttribute("class", "main_tab");
-				});
-				$("#" + tab_id)[0].setAttribute("class", "main_tab active");
-			}
-			
-			/**
-			 * Click an import tab.
-			 */
-			function on_import_mp_link(elem, tab_id) {
- 				$(".import_tab_link").each(function(idx, elem) {
-					elem.setAttribute("class", "import_tab_link");
-				});
-				elem.setAttribute("class", "import_tab_link active");
-				
-				$(".import_tab").each(function(idx, elem) {
-					elem.setAttribute("class", "section_row import_tab");
-				});
-				$("#" + tab_id)[0].setAttribute("class", "section_row import_tab active");
-			}
-			
-			// ----------------------- NEW MONEY PACKET ----------------------
-			
-			/**
-			 * Toggle password protection for new money packet.
-			 */
-			function on_new_mp_password_checkbox() {
-				var checked = $("#new_mp_password_checkbox").prop("checked");
-				var password1 = $("#new_mp_password1");
-				var password2 = $("#new_mp_password2");
-				
-				// reset state
-				password1.val("");
-				password2.val("");
-				$("#new_mp_password_error").text("");
-				
-				// disable password boxes
-				password1.prop("disabled", !checked);
-				password2.prop("disabled", !checked);
-
-				// toggle encryption warning and require password checkbox
- 				if ($("#new_mp_password_checkbox").prop("checked")) {
-					$("#new_mp_require_password_div").prop("class", "section_row display_default");
-					$("#new_mp_unecrypted_warning").prop("class", "section_row display_none");
-				} else {
-					$("#new_mp_require_password_div").prop("class", "section_row display_none");
-					$("#new_mp_unecrypted_warning").prop("class", "section_row display_default");
-				}
-			}
-			
-			/**
-			 * Initialize the new money packet save section.
-			 */
-			function reset_new_mp_save_section() {
-				$("#new_mp_save_section").hide();
-				$("#new_mp_copy_row").hide();
-				$("#new_mp_copy_link").text("\u25b9 Copy/paste");
-				$("#new_mp_saved_checkbox").prop("checked", false);
-			}
-			
-			/**
-			 * Initialize the new money packet add funds section.
-			 */
-			function reset_new_mp_add_section() {
-				$("#new_mp_add_section").hide();
-				$("#new_mp_qrcode_div").empty();
-				$("#new_mp_qrcode_address").text("");
-				$("#new_mp_add_header").css("color","black").text("...");
-			}
-			
-			/**
-			 * Create new money packet.
-			 */
-			function on_new_mp_button() {
-				// confirm before discarding last money packet
-				if (new_mp && !confirm("Start a new money packet?")) {
-					return;
-				}
-				
-				new_mp = null; // discard money packet
-				
-				// reset state
-				reset_new_mp_save_section();
-				reset_new_mp_add_section();
-				
-				// check for password protection
-				if ($("#new_mp_password_checkbox").prop("checked")) {
-					// validate password
-					var password1 = $("#new_mp_password1").val();
-					var password2 = $("#new_mp_password2").val();
-					var msg = validate_passwords(password1, password2);
-					if (msg == "valid") {
-						$("#new_mp_password_error").text("");
-						
-						// generate new money packet
-						new_mp = {};
-						var private_key = bitcore.PrivateKey();
-						new_mp["publicAddress"] = private_key.toAddress().toString();
-						new_mp["privateKey"] = sjcl.encrypt(password1, private_key.toWIF());
-						new_mp["passwordProtected"] = true;
-					}
-					
-					// invalid password
-					else {
-						$("#new_mp_password_error").text(msg);
-						return;
-					}
-				}
-				
-				// not password protected
-				else {
-					new_mp = {};
-					var private_key = bitcore.PrivateKey();
-					new_mp["publicAddress"] = private_key.toAddress().toString();
-					new_mp["privateKey"] = private_key.toWIF();
-					new_mp["passwordProtected"] = false;
-				}
-				
-				// create version to be saved
-				save_mp = jQuery.extend(true, {}, new_mp);	// deep copy
-				if (new_mp.passwordProtected && $("#new_mp_require_password_checkbox").prop("checked")) delete save_mp["publicAddress"];
-				
-				
-				// stop listening to old mp
- 				if (new_mp_listener) {
-					new_mp_listener.stop = function() { return true; };
-					new_mp_listener.callback = null;
-				}
-				
-				// start listening to new mp
-				new_mp_listener = {
-					stop: function() { return false; },
-					callback: function() {
-						get_balance(new_mp.publicAddress, function(err, amt) {
-							if (err) {
-								$("#new_mp_add_header").css("color", "red").text("Offline");
-							} else {
-								amt > 0 ? $("#new_mp_add_header").css("color", "green") : $("#new_mp_add_header").css("color", "black");								
-								$("#new_mp_add_header").text(satoshis_to_btc(amt) + " BTC");
-							}
-						});
-					}
-				};
-				timer(new_mp_listener, REFRESH_INTERVAL);
-				
- 				// show sections
-				show_new_mp_save_section();
-				update_new_mp_add_section();
-			}
-			
-			/**
-			 * Validates two passwords.
-			 */
-			function validate_passwords(password1, password2) {
-				if (password1 != password2) {
-					return "Passwords don't match";
-				} else if (password1 == "") {	
-					return "Password is blank";
-				} else if (password1.length < 4) {
-					return "Password must be at least 4 characters";
-				} else {
-					return "valid";
-				}
-			}
-			
-			/**
-			 * Show the save section.
-			 */
-			function show_new_mp_save_section() {
-				$("#new_mp_copy_textarea").text(JSON.stringify(save_mp))
-				$("#new_mp_save_section").show();
-			}
-			
-			/**
-			 * Update the new mp add funds section.
-			 */
-			function update_new_mp_add_section() {
-				// generate QR code
-				new QRCode("new_mp_qrcode_div", {
- 					text:new_mp.publicAddress,
- 					width:125,
- 					height:125
- 				});
-				$("#new_mp_qrcode_address").text(new_mp.publicAddress);
-			}
-			
-			/**
-			 * Download new mp.
-			 */
-			function on_new_mp_download_link() {
-				var blob = new Blob([JSON.stringify(save_mp)]);
-				if (isIE) {
-					window.navigator.msSaveBlob(blob, "money.bit");
-				} else {
-					var a = window.document.createElement('a');
-					a.href = window.URL.createObjectURL(new Blob([JSON.stringify(save_mp)], {type: 'application/json'}));
-					a.download = 'money.bit';
-					a.target="_blank";
-					document.body.appendChild(a);
-					a.click();
-					document.body.removeChild(a);
-				}
-			}
-			
-			/**
-			 * Toggle copy/paste textarea for new mp.
-			 */
-			function on_new_mp_copy_link() {
-				var displayed = $("#new_mp_copy_row").css("display") != "none"
-				$("#new_mp_copy_link").text(displayed ? "\u25b9 Copy/paste" : "\u25bf Copy/paste");
-				displayed ? $("#new_mp_copy_row").hide() : $("#new_mp_copy_row").show();
-			}
-			
-			/**
-			 * Handle new mp saved checkbox.
-			 */
-			function on_new_mp_saved_checkbox() {
-				if ($("#new_mp_saved_checkbox").prop("checked")) {
-					$("#new_mp_add_section").show();
-				} else {
-					$("#new_mp_add_section").hide();
-				}
-			}
-			
-			// ----------------------- IMPORT MONEY PACKET ----------------------
-			
-			/**
-			 * Initialize the import section.
-			 */
-			function init_import_mp_section() {
-				$("#import_mp_err").text("").hide();
-				$("#import_mp_password_row").hide();
-				$("#import_mp_password_err").text("");
-				$("#import_mp_password").val("");
-				$("#import_mp_send_section").hide();
-				$("#import_mp_add_section").hide();
-				$("#import_mp_header_balance").addClass("not-active").css("color","black").text("");
-				$("#import_mp_header_msg").css("color","black").text("");
-				imported_mp = null;
-				unlocked_mp = null;
-				reset_import_mp_sections();
-			}
-			
-			/**
-			 * Reset state of import sections.
-			 */
-			function reset_import_mp_sections() {
-				$("#import_mp_send_address").val("");
-				$("#import_mp_send_address_err").text("");
-				$("#import_mp_send_amt").val("0");
-				$("#import_mp_send_amt_err").text("");
-				$("#import_mp_send_msg").text("").hide();
-				$("#import_mp_qrcode_div").empty();
-				$("#import_mp_qrcode_address").text("");
-				clear_canvas("import_mp_send_address_checkmark");
-			}
-			
-			/**
-			 * Import from file.
-			 */
-			function on_import_mp_upload(files) {
-				init_import_mp_section();
-				var file = files[0];
-				var reader = new FileReader();
-				reader.onload = function(event) {
-					import_txt = reader.result;
-					import_mp_text();
-					$("#import_mp_paste_textarea").val(reader.result);
-				};
-				reader.readAsText(file);
-			}
-			
-			/**
-			 * Import from textarea.
-			 */
-			function on_import_mp_paste() {
-				init_import_mp_section();
-				$("#upload").replaceWith($("#upload").val('').clone(true));
-				if ($("#import_mp_paste_textarea").val() != "") {
-					import_txt = $("#import_mp_paste_textarea").val();
-					import_mp_text();
-				}
-			}
-			
-			/**
-			 * Parse and import text.
-			 */
-			function import_mp_text() {
-				try {
-					imported_mp = JSON.parse(import_txt);
-					$("#import_mp_err").empty().hide();
-					if (imported_mp.passwordProtected) {
-						$("#import_mp_password_row").show();
-						$("#import_mp_password").focus();
-						
-						// display unverified balance
-						var header_balance = $("#import_mp_header_balance");
-						header_balance.addClass("not-active");
-						if (imported_mp.publicAddress != null) {
-							// stop listening to old mp
-			 				if (imported_mp_listener) {
-								imported_mp_listener.stop = function() { return true; };
-								imported_mp_listener.callback = null;
-							}
-							
-							// start listening to unlocked mp
-							imported_mp_listener = {
-								stop: function() { return false; },
-								callback: function() {
-									if (imported_mp == null || imported_mp.publicAddress == null) return;
-									get_balance(imported_mp.publicAddress, function(err, amt) {
-										imported_mp_info = {err: err, amt: amt};
-										if (err) {
-											$("#import_mp_header_msg").css("color","red").text("Offline");
-											header_balance.text("");
-										} else {
-											amt > 0 ? header_balance.css("color", "green") : header_balance.css("color", "black");
-											header_balance.text(satoshis_to_btc(amt) + " BTC");
-											$("#import_mp_header_msg").css("color", "black").text("(unverified)");
-										}
-									});
-								}
-							};
-							timer(imported_mp_listener, REFRESH_INTERVAL);
-						} else {
-							header_balance.text("");
-							$("#import_mp_header_msg").css("color", "black").text("Balance locked");
-						}
-					} else {
-						$("#import_mp_password_row").hide();
-						unlocked_mp = {};
-						unlocked_mp["publicAddress"] = bitcore.PrivateKey.fromWIF(imported_mp.privateKey).toAddress().toString();
-						unlocked_mp["privateKey"] = imported_mp.privateKey;
-						set_unlocked_mp();
-					}
-				} catch(err) {
-					$("#import_mp_header_msg").text("");
-					$("#import_mp_err").text("Error importing money packet: invalid format").show();
-				}
-			}
-			
-			/**
-			 * Attempt to unlock money packet.
-			 */
-			function on_import_mp_unlock() {
-				import_mp_text();
-				try {
-					var private_key = sjcl.decrypt($("#import_mp_password").val(), imported_mp.privateKey);
-					unlocked_mp = {};
-					unlocked_mp["publicAddress"] = bitcore.PrivateKey.fromWIF(private_key).toAddress().toString();
-					unlocked_mp["privateKey"] = private_key;
-					
-					// confirm public keys match
-					if (imported_mp.publicAddress != null && imported_mp.publicAddress != unlocked_mp.publicAddress) {
-						$("#import_mp_err").text("Public key does not belong to private key!!!").show();
-					} else {
-						$("#import_mp_err").text("").hide();
-					}
-					$("#import_mp_password_err").text("");
-				} catch(err) {
-					$("#import_mp_password_err").text("Wrong password, try again");
-					unlocked_mp = null;
-				}
-				set_unlocked_mp();
-			}
-			
-			/**
-			 * Initialize page with unlocked money packet.
-			 */
-			function set_unlocked_mp() {
-				reset_import_mp_sections();
-				
-				// no packet to use
-				if (unlocked_mp == null) {
-					imported_mp_info = null;
-					$("#import_mp_send_section").hide();
-					$("#import_mp_add_section").hide();
-					return;
-				}
-				
-				// show balance header and sections
-				$("#import_mp_send_section").show();
-				$("#import_mp_add_section").show();
-				$("#import_mp_send_address").focus();
-				
-				// setup add funds section
-				$("#import_mp_qrcode_address").text(unlocked_mp.publicAddress);
-				new QRCode("import_mp_qrcode_div", {
- 					text:unlocked_mp.publicAddress,
- 					width:125,
- 					height:125
- 				});
-				
-				// stop listening to old mp
- 				if (imported_mp_listener) {
-					imported_mp_listener.stop = function() { return true; };
-					imported_mp_listener.callback = null;
-				}
-				
-				// start listening to unlocked mp
-				imported_mp_listener = {
-					stop: function() { return false; },
-					callback: function() {
-						if (unlocked_mp == null) return;
-						get_balance_utxos_tx(unlocked_mp.publicAddress, function(err, amt, utxos, tx) {
-							imported_mp_info = { err: err, amt: amt, utxos: utxos, tx: tx };
-							if (err) {
-								$("#import_mp_header_balance").text("");
-								$("#import_mp_header_msg").css("color","red").text("Offline");
-							} else {
-								amt > 0 ? $("#import_mp_header_balance").css("color", "green") : $("#import_mp_header_balance").css("color", "black");
-								$("#import_mp_header_balance").removeClass("not-active").text(satoshis_to_btc(amt) + " BTC");
-								$("#import_mp_header_msg").text("");
-							}
-							update_send_button();
-						});
-					}
-				};
-				timer(imported_mp_listener, REFRESH_INTERVAL);
-			}
-			
-			/**
-			 * Validate the send address.
-			 */
-			function validate_send_address() {
-				var address = $("#import_mp_send_address").val();
-				if (address == "") {
-					return "Address is blank"
-				} else if (!bitcore.Address.isValid(address)) {
-					return "Bitcoin address is not valid"
-				} else {
-					return "valid";
-				}
-			}
-			
-			/**
-			 * Validate the send amount.
-			 */
-			function validate_send_amt() {
-				var send_amt_str = $("#import_mp_send_amt").val();
-				if (send_amt_str == "" || send_amt_str == ".") {
-					return "Amount is blank"
-				} else if (!$.isNumeric(send_amt_str)) {
-					return "Amount is not a number"
-				}
-				
-				// get amounts in satoshis
-				var send_amt = btc_to_satoshis(parseFloat(send_amt_str));
-				var balance = imported_mp_info.amt;
-				var tx_fee = imported_mp_info.tx == null ? null : imported_mp_info.tx.getFee();
-				
-				// verify amounts
-				if (balance == null) {
-					return "offline";
-				} else if (send_amt > balance) {
-					return "Not enough funds"
-				} else if (send_amt <= 0) {
-					return "Amount must be positive";
-				} else if (send_amt > balance - tx_fee) {
-					return "Not enough funds with network transaction fee";
-				} else {
-					return "valid";
-				}
-			}
-			
-			/**
-			 * Handles when the user updates the send address.
-			 */
-			function on_send_address() {
-				var msg = validate_send_address();
-				clear_canvas("import_mp_send_address_checkmark");
-				$("#import_mp_send_address_checkmark").hide();
-				if (msg == "Bitcoin address is not valid") $("#import_mp_send_address_err").text(msg);
-				else {
-					$("#import_mp_send_address_err").text("");
-					if (msg == "valid") {
-						$("#import_mp_send_address_checkmark").show();
-						draw_checkmark("import_mp_send_address_checkmark");
-					}
-				}
-				update_send_button();
-			}
-			
-			/**
-			 * Handles when the user updates the send amount.
-			 */
-			function on_send_amt() {
-				var msg = validate_send_amt();
-				if (msg == "Amount is not a number" ||
-					msg == "Not enough funds" ||
-					msg == "Not enough funds with network transaction fee") {
-					$("#import_mp_send_amt_err").text(msg);
-				} else {
-					$("#import_mp_send_amt_err").text("");
-				}
-				update_send_button();
-			}
-			
-			/**
-			 * Retrieves the available balance for the given address.
-			 */
-			 function get_balance(address, callback) {
-				 insight.getUnspentUtxos(address, function(err, utxos) {
-						if (err) {
-							callback(err, null);
-							return;
-						}
-						var amt = 0;
-						for (var i = 0; i < utxos.length; i++) {
-							amt += utxos[i].satoshis;
-						}
-						callback(null, amt);
-					});
-			 }
-			
-			/**
-			 * Retrieves the UTXOs, balance, and prepared transaction for the given address.
-			 *
-			 * @param address is the address to retrieve for
-			 * @param callback(err, utxos, amt, tx)
-			 */
-			function get_balance_utxos_tx(address, callback) {
-				insight.getUnspentUtxos(address, function(err, utxos) {
-					if (err) {
-						callback(err);
-						return;
-					}
-					var amt = 0;
-					for (var i = 0; i < utxos.length; i++) {
-						amt += utxos[i].satoshis;
-					}
-					var tx = bitcore.Transaction().from(utxos).change(address);
-					callback(null, amt, utxos, tx);
-				});
-			}
-			
-			/**
-			 * Handle when the user clicks on the balance.
-			 */
-			function on_import_mp_header_balance() {
-				if (imported_mp_info.amt == null || imported_mp_info.tx == null) return;
-				$("#import_mp_send_amt").val(satoshis_to_btc(Math.max(0, imported_mp_info.amt - imported_mp_info.tx.getFee())));
-				on_send_amt();
-			}
-			
-			/**
-			 * Send funds from money packet.
-			 */
-			function on_import_mp_send() {
-				// validate address and amount
-				var address_msg = validate_send_address();
-				var amt_msg = validate_send_amt();
-				if (address_msg != "valid" || amt_msg != "valid") {
-					if (address_msg != "valid") $("#import_mp_send_address_err").text(address_msg);
-					if (amt_msg != "valid") $("#import_mp_send_amt_err").text(amt_msg);
-					return;
-				}
-				
-				// make sure network info is up to date
-				if (imported_mp_info.err != null) return;
-				
-				// confirm
-				if (!confirm("Send " + $("#import_mp_send_amt").val() + " BTC to " + $("#import_mp_send_address").val() + "?")) return;
-
-				// finish transaction
-				var tx = imported_mp_info.tx;
-				var send_address = $("#import_mp_send_address").val();
-				var amt = bitcore.Unit.fromBTC(parseFloat($("#import_mp_send_amt").val())).toSatoshis();
-				tx.to(send_address, amt).sign(unlocked_mp.privateKey);
-				
- 			    // broadcast transaction
- 			  	var send_msg = $("#import_mp_send_msg");
-   			    try {
- 				    insight.broadcast(tx, function(err, txid) {
- 				    	if (err) {
- 				    		send_msg.text("Error sending funds");
- 				    		send_msg.css("color", "red")
- 				    	} else {
- 				    		if (send_address == TIP_ADDRESS) {
- 				    			send_msg.text("Thank you for the tip :)");
- 				    		} else {
- 	 				    		send_msg.text("Funds sent successfully");
- 				    		}
- 				    		send_msg.css("color", "green")
- 				    	}
- 				    });
- 			    } catch(err) {
- 			    	send_msg.text("Error sending payment");
-			    	send_msg.css("color", "red");
- 			    }
-		    	send_msg.show().delay(4000).fadeOut(1000);
-			}
-			
-			/**
-			 * Converts the given amount from satoshis to btc.
-			 */
-			function satoshis_to_btc(amt) {
-				return bitcore.Unit.fromSatoshis(amt).toBTC();
-			}
-			
-			/**
-			 * Converts the given amount from btc to satoshis.
-			 */
-			function btc_to_satoshis(amt) {
-				return bitcore.Unit.fromBTC(amt).toSatoshis();
-			}
-			
-			/**
-			 * Draws a checkmark in the given canvas by id.
-			 */
-			function draw_checkmark(canvas_id) {
-				var start = 100;
-				var mid = 145;
-				var end = 250;
-				var width = 22;
-				var leftX = start;
-				var leftY = start;
-				var rightX = mid - (width / 2.7);
-				var rightY = mid + (width / 2.7);
-				var animationSpeed = 4;
-
-				var ctx = document.getElementById(canvas_id).getContext('2d');
-				ctx.lineWidth = width;
-				ctx.strokeStyle = 'rgba(0, 150, 0, 1)';
-
-				for (i = start; i < mid; i++) {
-				    var drawLeft = window.setTimeout(function () {
-				        ctx.beginPath();
-				        ctx.moveTo(start, start);
-				        ctx.lineTo(leftX, leftY);
-				        ctx.stroke();
-				        leftX++;
-				        leftY++;
-				    }, 1 + (i * animationSpeed) / 3);
-				}
-
-				for (i = mid; i < end; i++) {
-				    var drawRight = window.setTimeout(function () {
-				        ctx.beginPath();
-				        ctx.moveTo(leftX, leftY);
-				        ctx.lineTo(rightX, rightY);
-				        ctx.stroke();
-				        rightX++;
-				        rightY--;
-				    }, 1 + (i * animationSpeed) / 3);
-				}
-			}
-			
-			/**
-			 * Clears the given canvas by id.
-			 */
-			function clear_canvas(canvas_id) {
-				var canvas = document.getElementById(canvas_id);
-				var ctx = canvas.getContext('2d');
-				ctx.clearRect(0, 0, canvas.width, canvas.height)
-			}
-			
-			/**
-			 * Checks the state of send form and enables/disables the send button accordingly.
-			 */
-			function update_send_button() {
-				var valid = true;
-				if (imported_mp_info.err != null) valid = false;
-				if (validate_send_address() != "valid") valid = false;
-				if (validate_send_amt() != "valid") valid = false;
-				$("#import_mp_send_button").prop("disabled", !valid);
-			}
-		</script>
 	</body>
 </html>

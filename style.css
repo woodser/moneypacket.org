@@ -1,0 +1,273 @@
+/* --------------------------------- LAYOUT SETUP ----------------------------- */
+
+* {
+	font-family: calibri, arial, verdana, sans-serif;
+	font-size: 19px;
+}
+
+div {
+	/* border:1px solid; */
+}
+
+#container {
+	margin:0;
+	padding:0;
+	text-align:center;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+#top_div {
+	text-align:center;
+	margin:0;
+	padding:0;
+	margin-bottom:10px;
+}
+
+#title_div {
+	font-size:35px;
+	margin-top:5px;
+	margin-bottom:0px;
+	height:50px;
+	display:inline-block;
+}
+
+img[src="img/btc_logo.png"] {
+	width:40px;
+	height:40px;
+	margin-right:10px;
+	vertical-align:middle;
+}
+
+#title {
+	font-size:35px;
+	display:inline-block;
+	vertical-align:middle;
+	text-decoration:none;
+	color:black;
+}
+
+#subtitle_div {
+	font-size:20px;
+	font-style:italic;
+	margin-bottom:10px;
+	display:inline-block;
+}
+
+#body_div {
+	margin-bottom:25px;
+	min-width:950px;
+}
+
+
+#footer_div {
+	text-align:center;
+}
+
+#footer_links > * {
+	font-size:16px;
+}
+
+#footer_links {
+	margin-bottom:10px;
+	font-size:16px;
+}
+
+#tips {
+	text-align:center;
+	font-size:15px;
+	margin-bottom:5px;
+}
+
+#legal {
+	font-size:14px;
+	margin-top:30px;
+	margin-bottom:10px;
+}
+
+#header_div {	
+	display:inline-block;
+	margin:0;
+	padding:5px;
+	width:810px;
+}
+
+#offline_div {
+	float:right;
+	color:red;
+}
+
+#preferred_unit_div {
+	float:left;
+}
+
+#center_div {
+	display:inline-block;
+	text-align:center;
+	margin:0;
+	position:relative;
+	overflow:hidden;
+	width:810px;
+	height:475px;
+	border:solid;
+}
+
+/* #background_page {
+	background-image: url('img/envelope2.png');
+	background-size:700px 485px;
+	opacity:0.2;
+}*/
+
+
+#left_div {
+	display:inline-block;
+	width:50px;
+	margin:0;
+	text-align:left;
+}
+
+#right_div {
+	display:inline-block;
+	width:50px;
+	margin:0;
+	text-align:right;
+}
+
+#left_arrow {
+	-ms-transform: rotate(180deg); /* IE 9 */
+    -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+    transform: rotate(180deg);
+}
+
+#right_arrow {
+	-ms-transform: rotate(0deg); /* IE 9 */
+    -webkit-transform: rotate(0deg); /* Chrome, Safari, Opera */
+    transform: rotate(0deg);
+}
+
+.nav_arrow {
+	width:40px;
+	height:40px;
+	margin-bottom:225px;
+}
+
+.nav_arrow:hover {
+	cursor: pointer;
+}
+
+/* ------------------------------- CONTENT SETUP --------------------------- */
+
+.page {
+	position:absolute;
+	top:0px;
+	left:0px;
+	text-align:left;
+	width:100%;
+	height:100%;
+}
+
+.page > div {
+	padding:0px 20px 0px 20px;
+}
+
+.hidden {
+	display:none;
+}
+
+textarea {
+	width:100%;
+}
+
+.qrcode {
+	text-align:center;
+	display:inline-block;
+}
+
+input[type="text"] {
+	padding:8px;
+	width:100px;
+	text-align:left;
+}
+
+input[type="password"] {
+	padding:8px;
+	width:175px;
+}
+
+#claim_address {
+	width:375px;
+}
+
+label {
+	display:inline-block;
+	width:100px;
+}
+
+button {
+	width:100%;
+	height:40px;
+}
+
+.checkmark {
+	width:18px;
+	height:18px;
+	margin-right:10px;
+}
+
+.checkmark_line {
+	line-height:40px;
+}
+
+.link_container {
+	display:block;
+}
+
+.nav_link, .button {
+	text-decoration:none;
+	height:25px;
+	line-height:25px;
+	color:black;
+	font-size:20px;
+	padding:10px 10px 10px 10px;
+	margin:0 0 15px 0;
+	background-color:#E0E0E0;
+	cursor:pointer;
+	border:thin solid;
+}
+
+.button {
+	text-align:center;
+}
+
+.nav_link:hover, .button:hover {
+	background-color:#F0F0F0;
+	color:black;
+}
+
+.nav_link:active, .button:active {
+	background-color:#B0B0B0;
+}
+
+.link_arrow {
+	float:right;
+	width:20px;
+	height:20px;
+}
+
+#claim_address_full_balance, #claim_mp_send_full_balance {
+	text-decoration: underline;
+}
+
+a {
+	text-decoration:none;
+	color:blue;
+}
+
+a[disabled], div[disabled] {
+	pointer-events:none;
+	color:gray;
+}
+
+div[disabled] img {
+	display:none;
+}

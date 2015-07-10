@@ -1,0 +1,15 @@
+moneypacket.org
+Open Source Client-Side Standalone Bitcoin File Generator
+
+06/26/2015
+moneypacket.org-v0.1
+- Initial release
+
+07/10/2015
+moneypacket.org-v0.2
+- Completely re-built to guide user through process
+- Create a new money packet
+- Import an existing money packet
+- Withdraw to new money packet
+- Withdraw to bitcoin address
+- Add funds to existing money packet
