@@ -1,5 +1,5 @@
 moneypacket.org
-Open Source Client-Side Standalone Bitcoin File Generator
+Digital envelopes for bitcoin, no trusted third parties.
 
 06/26/2015
 moneypacket.org-v0.1
