@@ -1,8 +1,4 @@
 /**
- * v0.2:
- * cross browser testing
-
- * 
  * v0.3+
  * offline mode isn't reliably detected
  * keyboard navigation through most of it?
@@ -23,6 +19,8 @@
  * automatically import mp after new mp created and funded
  * set expiration date to claim funds before they're returned
  * compute minimum send amount and pre-validate in forms instead of try catch
+ * https
+ * gpg encryption
  */
 
 // dependencies
