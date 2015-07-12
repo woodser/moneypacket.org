@@ -895,7 +895,7 @@ function on_claim_address_full_balance() {
 			$("#claim_address_amt_msg").css("color", "red").text("Insufficient funds to make transaction");
 		} else if (address_msg == "Valid") {
     		$("#claim_address_amt_msg").text("");
-			if (!confirm("Send the full balance to " + send_address + "?\n\nThe network transaction fee is ~" + satoshis_to_unit_str(tx_fee, 3) + ".")) return;
+			if (!confirm("Send the full balance to " + send_address + "?") return;
 			tx.to(send_address, send_amt).sign(imported_private_key);
 			try {
 				insight.broadcast(tx, function(err, txid) {
@@ -942,7 +942,7 @@ function on_claim_address_send() {
 		var amt_msg = validate_transfer_amt(send_amt_str, balance, tx_fee);
 		if (address_msg == "Valid" && amt_msg == "Valid") {
 			var send_amt = parseFloat(send_amt_str);
-			if (!confirm("Transfer " + satoshis_to_unit_str(unit_to_satoshis(send_amt)) + " to " + send_address + "?\n\nThe network transaction fee is ~" + satoshis_to_unit_str(tx_fee, 3) + ".")) return;
+			if (!confirm("Transfer " + satoshis_to_unit_str(unit_to_satoshis(send_amt)) + " to " + send_address + "?") return;
 			tx.to(send_address, unit_to_satoshis(send_amt, 0)).sign(imported_private_key);
 			try {
 				insight.broadcast(tx, function(err, txid) {
