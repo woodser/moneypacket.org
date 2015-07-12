@@ -69,7 +69,7 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode;
 $(document).ready(function() {
 	// general setup
 	$(".page").hide();
-	//$("#background_page").show();
+	$("#background_page").show();
 	$("#home_page").show();
 	page_manager = new PageManager("home_page");
 	$("#left_arrow").addClass("hidden").click(function() { page_manager.prev(); });

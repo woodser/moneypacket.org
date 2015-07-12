@@ -112,11 +112,11 @@ img[src="img/btc_logo.png"] {
 	border:solid;
 }
 
-/* #background_page {
-	background-image: url('img/envelope2.png');
-	background-size:700px 485px;
-	opacity:0.2;
-}*/
+#background_page {
+	background-image: url('img/envelope.png');
+	background-size:810px 475px;
+	opacity:0.15;
+}
 
 
 #left_div {
