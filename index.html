@@ -18,7 +18,7 @@
 		<div id="container">
 			<div id="top_div">
 				<div id="title_div"><img src="img/btc_logo.png"><a href="index.html" id="title">moneypacket.org</a></div><br>
-				<div id="subtitle_div">Digital envelopes for bitcoin, no trusted third parties.</div>
+				<div id="subtitle_div">Digital envelopes for real bitcoins, no trusted third parties.</div>
 			</div>
 			<div id="header_div">
 				<div id="offline_div">Offline</div>
@@ -41,15 +41,18 @@
 						<div>
 							<p style="text-align:left">A money packet is a file which contains bitcoins, like a digital envelope containing money.</p>
 							<p>Money packets can be shared over email or Dropbox or simply backed up, just like any other file.</p>
-							<p>This site lets you to create money packets and access their funds.</p>
-							<div class="checkmark_line"><img class="checkmark" src="img/checkmark.png">Recipients don't need a bitcoin wallet to receive funds.</div>
-							<div class="checkmark_line"><img class="checkmark" src="img/checkmark.png">This service is free, open source, and 100% client-side.</div>
-							<div class="checkmark_line"><img class="checkmark" src="img/checkmark.png">No accounts or trusted third parties are involved.</div>
-							<div class="checkmark_line"><img class="checkmark" src="img/checkmark.png">All funds are password-protected.</div>
+							<p>This site lets you to create money packets and retrieve their funds.</p>
+							<div>
+								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">This website is free, open source, and 100% client-side; I am not a trusted third party.</span><br>
+								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">Recipients don't need a bitcoin wallet to receive funds.</span><br>
+								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">Senders can re-claim funds until the receiver claims them.</span><br>
+								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">No account sign up.</span><br>
+								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">All funds are password-protected by a password you create.</span><br>
+							</div>
 							<div>&nbsp;</div>
 							<div class="link_container">
-								<div class="nav_link" id="home_create_link">Create a new money packet<img class="link_arrow" src="img/arrow.png"></div>
-								<div class="nav_link" id="home_import_link">Import an existing money packet<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="home_import_link">Claim a money packet<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="home_create_link">Create a money packet<img class="link_arrow" src="img/arrow.png"></div>
 							</div>
 						</div>
 					</div>
@@ -87,12 +90,12 @@
 					<div id="unlocked_page" class="page">
 						<div>
 							<p>Your money packet is unlocked!</p>
-							<p>The balance is <span id="unlocked_balance"></span>.</p>
-							<p>If you received this money packet from someone, the sender still has access to the funds until you move them.</p>
+							<p>The balance is <span id="unlocked_balance"></span>.&nbsp;&nbsp;<span id="fluctuate">This amount will fluctuate with the market price of bitcoin.</span></p>
+							<p>If you received this money packet from someone, the sender still has access to the funds until you claim them.</p>
 							<p>&nbsp;</p>
 							<div class="link_container">
-								<div class="nav_link" id="unlocked_claim_mp_link">Withdraw funds to a new money packet<img class="link_arrow" src="img/arrow.png"></div>
-								<div class="nav_link" id="unlocked_claim_address_link">Withdraw funds to a bitcoin address<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="unlocked_claim_mp_link">Claim funds to a new money packet<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="unlocked_claim_address_link">Claim funds to a bitcoin address<img class="link_arrow" src="img/arrow.png"></div>
 								<div class="nav_link" id="unlocked_add_link">Add funds to this money packet<img class="link_arrow" src="img/arrow.png"></div>
 							</div>
 						</div>
@@ -134,8 +137,8 @@
 						<div>
 							<p>We're ready to transfer funds from your original money packet to your new one!</p>
 							<p>How much would you like to transfer?</p>
-							<p>Available balance: <span id="claim_mp_send_balance"></span></p>
-							<p><a href="#" id="claim_mp_send_full_balance">Send full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span id="claim_mp_send_symbol"></span>&nbsp;<input id="claim_mp_send_amt" type="text">&nbsp;<span id="claim_mp_send_code"></span>&nbsp;&nbsp;&nbsp;</p>
+							<p>Available balance: <span id="claim_mp_send_balance"></span>&nbsp;&nbsp;|&nbsp;&nbsp;Bitcoin transaction fee: ~<span id="claim_mp_send_fee"></span></p>
+							<p><a href="#" id="claim_mp_send_full_balance">Transfer full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span id="claim_mp_send_symbol"></span>&nbsp;<input id="claim_mp_send_amt" type="text">&nbsp;<span id="claim_mp_send_code"></span>&nbsp;&nbsp;&nbsp;</p>
 							<p><span id="claim_mp_send_amt_error"></span></p>
 							<div id="claim_mp_send_button" class="button">Transfer</div>
 							<p id="claim_mp_send_msg"></p>
@@ -156,13 +159,14 @@
 					<!-- Claim money packet to bitcoin address -->
 					<div id="claim_address_page" class="page">
 						<div>
-							<p>Withdraw funds from your money packet to a bitcoin address.</p>
-							<p>Enter the bitcoin address to receive the funds and an amount to send.</p>
-							<p>Available balance: <span id="claim_address_balance"></span></p>
+							<p>You may claim the funds in your money packet to a bitcoin address which you provide.</p>
+							<p>Enter the bitcoin address to receive the funds and an amount to transfer.</p>
+							<p>Don't have a bitcoin address?  I recommend installing <a target="_blank" href="https://copay.io/">Copay</a> which works on all devices.</p>
+							<p>Available balance: <span id="claim_address_balance"></span>&nbsp;&nbsp;|&nbsp;&nbsp;Bitcoin transaction fee: ~<span id="claim_address_fee"></span></p>
 							<p>Receiving bitcoin address: <input type="text" id="claim_address" spellcheck="false">&nbsp;<canvas id="claim_address_checkmark" style="width:30px;height:22px;display:none;vertical-alignment:middle;"></canvas><br><span id="claim_address_msg"></span></p>
-							<p>&nbsp;<a href="#" id="claim_address_full_balance">Send full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span id="claim_address_symbol"></span>&nbsp;<input type="text" id="claim_address_amt">&nbsp;<span id="claim_address_code"></span></p>
+							<p>&nbsp;<a href="#" id="claim_address_full_balance">Transfer full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span id="claim_address_symbol"></span>&nbsp;<input type="text" id="claim_address_amt">&nbsp;<span id="claim_address_code"></span></p>
 							<p><span id="claim_address_amt_msg"></span></p>
-							<div class="button" id="claim_address_send_button">Send</div>
+							<div class="button" id="claim_address_send_button">Transfer</div>
 							<p id="claim_address_send_msg"></p>
 						</div>
 					</div>

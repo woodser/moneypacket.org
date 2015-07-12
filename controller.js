@@ -19,8 +19,15 @@
  * automatically import mp after new mp created and funded
  * set expiration date to claim funds before they're returned
  * compute minimum send amount and pre-validate in forms instead of try catch
+ * add the envelope back in
  * https
  * gpg encryption
+ * Give credit to BitPay for BitCore and recommend CoPay as the best wallet I have used to date
+ * Step by step both the features and the process.
+ * Sender may continue to add funds to a money packet at any time. (HD coming eventually, if possible)
+ * "you will see fluctuations"
+ * "prices are updated every minute"
+ * special treatment if they give a tip :)
  */
 
 // dependencies
@@ -477,6 +484,11 @@ function on_unit() {
 	update_new_mp_unit_labels();
 	update_claim_address_unit_labels();
 	update_claim_mp_send_unit_labels();
+	if (get_unit_code() != "BTC" && get_unit_code() != "bits") {
+		$("#fluctuate").show();
+	} else {
+		$("#fluctuate").hide();
+	}
 }
 
 /**
@@ -491,6 +503,13 @@ function update_imported_balances() {
 	$("#unlocked_mp_add_done_balance").css("color", color).text(amt_str);
 	$("#claim_address_done_balance").css("color", color).text(amt_str);
 	$("#claim_mp_done_old_balance").css("color", color).text(amt_str);
+	if (imported_network_info != null && imported_network_info.tx != null) {
+		$("#claim_address_fee").css("color","green").text(satoshis_to_unit_str(imported_network_info.tx.getFee(), 2));
+		$("#claim_mp_send_fee").css("color","green").text(satoshis_to_unit_str(imported_network_info.tx.getFee(), 2));
+	} else {
+		$("#claim_address_fee").css("color","red").text("unavailable");
+		$("#claim_mp_send_fee").css("color","red").text("unavailable");
+	}
 }
 
 function update_new_mp_balances() {
@@ -693,7 +712,7 @@ function on_claim_mp_send() {
 			$("#claim_mp_send_amt_error").css("color","red").text(msg);
 		} else {
 			var send_amt = parseFloat(send_amt_str);
-			if (!confirm("Transfer " + satoshis_to_unit_str(unit_to_satoshis(send_amt)) + " to your new money packet?\n\nThe network transaction fee is ~" + satoshis_to_unit_str(tx_fee, 3) + ".")) return;
+			if (!confirm("Transfer " + satoshis_to_unit_str(unit_to_satoshis(send_amt)) + " to your new money packet?")) return;
 			tx.to(claim_mp_public_address, unit_to_satoshis(send_amt, 0)).sign(imported_private_key);
 			try {
 				insight.broadcast(tx, function(err, txid) {
@@ -801,7 +820,7 @@ function update_claim_mp_send_button() {
 }
 
 function update_claim_address_send_button() {
-	if (!online) {
+	if (!online || imported_network_info == null || imported_network_info.tx == null) {
 		$("#claim_address_send_button").attr("disabled", "disabled");
 		return;
 	}
@@ -834,7 +853,7 @@ function on_claim_mp_send_full_balance() {
 		if (send_amt == 0) {
 			$("#claim_mp_send_amt_error").css("color","red").text("Insufficient funds to make transaction");
 		} else {
-			if (!confirm("Transfer the full balance to your new money packet?\n\nThe network transaction fee is ~" + satoshis_to_unit_str(tx_fee, 3) + ".")) return;
+			if (!confirm("Transfer the full balance to your new money packet?")) return;
 			tx.to(claim_mp_public_address, send_amt).sign(imported_private_key);
 			try {
 				insight.broadcast(tx, function(err, txid) {
@@ -1093,6 +1112,7 @@ function set_online(is_online) {
 	online = is_online;
 	update_imported_buttons();
 	if (online) {
+		update_exchange_rates();
 		$("#offline_div").hide();
 		$("#new_mp_add_waiting").text("Waiting for funds...");
 		$("#unlocked_mp_add_waiting").text("Waiting for funds...");
