@@ -19,3 +19,4 @@ moneypacket.org-v0.21
 - clarified terminology around claiming vs sending vs receiving
 - moved transaction fee notice out of confirmation dialog
 - added notice that local currencies will fluctuate against market price of bitcoin
+- recommended Copay on claim to bitcoin address page
