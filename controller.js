@@ -1,4 +1,8 @@
 /**
+ * v0.22
+ * gpg
+ * bip38
+ * 
  * v0.3+
  * offline mode isn't reliably detected
  * keyboard navigation through most of it?
@@ -19,21 +23,19 @@
  * automatically import mp after new mp created and funded
  * set expiration date to claim funds before they're returned
  * compute minimum send amount and pre-validate in forms instead of try catch
- * add the envelope back in
- * https
- * gpg encryption
  * Give credit to BitPay for BitCore and recommend CoPay as the best wallet I have used to date
  * Step by step both the features and the process.
  * Sender may continue to add funds to a money packet at any time. (HD coming eventually, if possible)
- * "you will see fluctuations"
  * "prices are updated every minute"
  * special treatment if they give a tip :)
+ * mouse movements to generate private key
  */
 
 // dependencies
 var bitcore = require('bitcore');
 var insight = require('bitcore-explorers').Insight();
-var sjcl = require ('sjcl');
+var sjcl = require('sjcl');
+var Bip38 = require('bip38');
 
 // instance variables
 var page_manager;
@@ -52,13 +54,15 @@ var new_mp_network_info;
 var new_mp_balance;
 var exchange_rates = null;
 var online = true;
+var bip38;
 
-//constants
+// constants
 var NETWORK_REFRESH_RATE = 1000;
 var EXCHANGE_RATE_REFRESH_RATE = 60000;
 var TIP_ADDRESS = "1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo";
 var EDGE_WIDTH = 150;
 var PREFERRED_UNIT_DEFAULT = "USD";
+var DEFAULT_ITER = 10000;
 
 // IE workaround
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
@@ -82,6 +86,7 @@ $(document).ready(function() {
 	new exchange_rate_listener(EXCHANGE_RATE_REFRESH_RATE);
 	$("#preferred_unit_select").change(on_unit);
 	$("#offline_div").hide();
+	bip38 = new Bip38();
 	
 	// home page
 	$("#home_import_link").click(function() { page_manager.next("import_upload_page"); });
@@ -100,6 +105,7 @@ $(document).ready(function() {
 	$("#claim_mp_set_password_button").click(on_claim_mp_set_password);
 	$("#claim_mp_password1").keyup(function(event) { if (event.keyCode == 13) { $("#claim_mp_password1").blur(); on_claim_mp_set_password(); } });
 	$("#claim_mp_password2").keyup(function(event) { if (event.keyCode == 13) { $("#claim_mp_password2").blur(); on_claim_mp_set_password(); } });
+	$("#claim_mp_advanced_link").click(on_claim_mp_advanced_link);
 	$("#claim_mp_download_button").click(on_claim_mp_download);
 	$("#claim_mp_download_copy_link").click(function() { page_manager.next("claim_mp_copy_page"); });
 	$("#claim_mp_download_confirm_checkbox").click(on_claim_mp_download_confirm_checkbox);
@@ -127,6 +133,7 @@ $(document).ready(function() {
 	$("#new_mp_set_password_button").click(on_new_mp_set_password);
 	$("#new_mp_password1").keyup(function(event) { if (event.keyCode == 13) { $("#new_mp_password1").blur(); on_new_mp_set_password(); } });
 	$("#new_mp_password2").keyup(function(event) { if (event.keyCode == 13) { $("#new_mp_password2").blur(); on_new_mp_set_password(); } });
+	$("#new_mp_advanced_link").click(on_new_mp_advanced_link);
 	$("#new_mp_download_button").click(on_new_mp_download);
 	$("#new_mp_download_copy_link").click(function() { page_manager.next("new_mp_copy_page"); });
 	$("#new_mp_download_confirm_checkbox").click(on_new_mp_download_confirm_checkbox);
@@ -240,7 +247,7 @@ function PageManager(start_id) {
 			break;
 		case "unlock_page":
 			$("#import_password").val("");
-			$("#import_password_error").text("");
+			$("#import_password_msg").text("");
 			break;
 		case "unlocked_page":
 			$("#unlocked_balance").text("...");
@@ -270,13 +277,16 @@ function PageManager(start_id) {
 		case "claim_mp_password_page":
 			$("#claim_mp_password1").val("");
 			$("#claim_mp_password2").val("");
-			$("#claim_mp_password_error").text("");
+			$("#claim_mp_password_msg").text("");
+			$("#claim_mp_advanced_link").text("\u25b8 Advanced");
+			$("#claim_mp_advanced_div").hide();
+			$("#claim_mp_bip38_checkbox").prop("checked", false);
 			break;
 		case "claim_mp_download_page":
 			$("#claim_mp_download_confirm_checkbox").prop("checked", false);
 			break;
 		case "claim_mp_copy_page":
-			$("#claim_mp_copy_textarea").val(claim_mp);
+			$("#claim_mp_copy_textarea").val(JSON.stringify(claim_mp));
 			$("#claim_mp_copy_confirm_checkbox").prop("checked", false);
 			break;
 		case "claim_mp_send_page":
@@ -300,7 +310,10 @@ function PageManager(start_id) {
 		case "new_mp_password_page":
 			$("#new_mp_password1").val("");
 			$("#new_mp_password2").val("");
-			$("#new_mp_password_error").text("");
+			$("#new_mp_password_msg").css("color","black").text("");
+			$("#new_mp_advanced_link").text("\u25b8 Advanced");
+			$("#new_mp_advanced_div").hide();
+			$("#new_mp_bip38_checkbox").prop("checked", false);
 			break;
 		case "new_mp_download_page":
 			$("#new_mp_download_confirm_checkbox").prop("checked", false);
@@ -309,7 +322,7 @@ function PageManager(start_id) {
 			new_mp_balance = 0;
 			break;
 		case "new_mp_copy_page":
-			$("#new_mp_copy_textarea").val(new_mp);
+			$("#new_mp_copy_textarea").val(JSON.stringify(new_mp));
 			$("#new_mp_copy_confirm_checkbox").prop("checked", false);
 			break;
 		case "new_mp_add_page":
@@ -398,11 +411,16 @@ function on_import_upload(files) {
 	var reader = new FileReader();
 	reader.onload = function(event) {
 		try {
+			// read JSON
 			imported_mp = JSON.parse(reader.result);
+			
+			// upgrade to v0.22 format (adds bip38 encryption)
+			if (valid_v21(imported_mp)) imported_mp = v21_to_v22(imported_mp);
+			if (!valid_v22(imported_mp)) imported_mp = null;
 		} catch(err) {
 			imported_mp = null;
 		}
-		if (imported_mp == null || imported_mp.mode == null) {
+		if (imported_mp == null) {
 			$("#import_upload_error").text("Invalid money packet.  Make sure you selected the right file.");
 		} else {
 			$("#import_upload_error").text("");
@@ -414,14 +432,19 @@ function on_import_upload(files) {
 
 function on_import_paste_textarea() {
 	try {
+		// read JSON
 		imported_mp = JSON.parse($("#import_paste_textarea").val());
+		
+		// upgrade to v0.22 format (adds bip38 encryption)
+		if (valid_v21(imported_mp)) imported_mp = v21_to_v22(imported_mp);	
+		if (!valid_v22(imported_mp)) imported_mp = null;
 	} catch(err) {
 		imported_mp = null;
 		page_manager.clear_nexts();
 	}
 	if ($("#import_paste_textarea").val() == "") {
 		$("#import_paste_error").text("");
-	} else if (imported_mp == null || imported_mp.mode == null) {
+	} else if (imported_mp == null) {
 		$("#import_paste_error").text("Invalid money packet text.  Copy and paste the entire file contents of your money packet.");
 	} else {
 		$("#import_paste_error").text("");
@@ -429,17 +452,64 @@ function on_import_paste_textarea() {
 	}
 }
 
+
+// ------------------------ VERSION CONVERSION FUNCTIONS ---------------------
+function valid_v21(mp) {
+	return mp.iter != null && mp.iv != null && mp.ct != null;
+}
+
+function valid_v22(mp) {
+	return mp.privateKey != null && (mp.encryption == "sjcl" || mp.encryption == "bip38");
+}
+
+function v21_to_v22(mp) {
+	var converted = {};
+	converted["privateKey"] = JSON.stringify(mp);
+	converted["encryption"] = "sjcl";
+	return converted;
+}
+
 function on_unlock() {
 	try {
-		imported_private_key = sjcl.decrypt($("#import_password").val(), JSON.stringify(imported_mp));
+		if (imported_mp.encryption == "sjcl") {
+			imported_private_key = sjcl.decrypt($("#import_password").val(), imported_mp.privateKey);
+			on_success();
+		} else if (imported_mp.encryption == "bip38") {
+			if (confirm("This money packet was encrypted with BIP38.  It might take a minute to decrypt.  Continue?")) {
+				$("#import_password_msg").css("color","green").text("BIP38 decrypting, please wait...");
+				setTimeout(function() {	// delay encryption so message displays
+					var decrypted = bip38.decrypt(imported_mp.privateKey, $("#import_password").val());
+					
+					// compare stated public address to derived public address to check password
+					// TODO: would be nice if BIP38 did the password check instead, then publicAddress would not be needed
+					var derived_public_address = bitcore.PrivateKey.fromWIF(decrypted).toAddress().toString();
+					if (derived_public_address != imported_mp.publicAddress) {
+						on_fail();
+					} else {
+						imported_private_key = decrypted;
+						on_success();
+					}
+				}, 50);
+			}
+		} else {
+			console.error("Invalid encryption scheme: " + imported_mp_encryption);
+			on_fail();
+		}
+	} catch (err) {
+		console.log(err);
+		on_fail();
+	}
+	
+	function on_fail() {
+		$("#import_password_msg").css("color","red").text("Password is incorrect, try again.");
+		$("#import_password").val("");
+	}
+	
+	function on_success() {
 		imported_public_address = bitcore.PrivateKey.fromWIF(imported_private_key).toAddress().toString();
-		$("#import_password_error").text("");
+		$("#import_password_msg").text("");
 		unlocked_mp_balance = null;
 		page_manager.next("unlocked_page");
-	} catch (err) {
-		$("#import_password_error").text("Password is incorrect, try again.");
-		$("#import_password").val("");
-		$("#import_password").focus();
 	}
 }
 
@@ -568,20 +638,42 @@ function update_claim_mp_send_unit_labels() {
  * DUPLICATE BELOW
  */
 function on_claim_mp_set_password() {
-	if (claim_mp != null && !confirm("You already created a money packet to transfer funds to.  Discard and start a new one?")) return;
 	var password1 = $("#claim_mp_password1");
 	var password2 = $("#claim_mp_password2");
 	var valid = validate_passwords(password1.val(), password2.val());
 	if (valid == "Valid") {
-		$("#claim_mp_set_password_error").text("");
+		$("#claim_mp_password_msg").text("");
+		
+		// confirm starting new packet
+		if (claim_mp != null) {
+			if (!confirm("You already started a money packet to transfer funds to.  Discard and start a new one?")) return;
+			claim_mp = null;
+			page_manager.clear_nexts();
+		}
 		
 		// generate private key for claim mp
 		var claim_mp_private_key = bitcore.PrivateKey();
 		claim_mp_public_address = claim_mp_private_key.toAddress().toString();
-		claim_mp = sjcl.encrypt(password1.val(), claim_mp_private_key.toWIF());
-		page_manager.next("claim_mp_download_page");
+		if ($("#claim_mp_bip38_checkbox").is(":checked")) {
+			if (confirm("BIP38 encryption can take a minute or two and sometimes crashes in the browser.  Continue?")) {
+				$("#claim_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
+				setTimeout(function() {	// hack to show encrypting message
+					claim_mp = {};
+					claim_mp["publicAddress"] = claim_mp_private_key.toAddress().toString();
+					claim_mp["privateKey"] = bip38.encrypt(claim_mp_private_key.toWIF(), password1.val(), claim_mp_private_key.toAddress().toString());
+					claim_mp["encryption"] = "bip38";
+					page_manager.next("claim_mp_download_page");
+					$("#claim_mp_password_msg").css("color","black").text("");
+				}, 50);
+			}
+		} else {
+			claim_mp = {};
+			claim_mp["privateKey"] = sjcl.encrypt(password1.val(), claim_mp_private_key.toWIF(), { iter:DEFAULT_ITER });
+			claim_mp["encryption"] = "sjcl";
+			page_manager.next("claim_mp_download_page");
+		}
 	} else {
-		$("#claim_mp_set_password_error").text(valid);
+		$("#claim_mp_password_msg").text(valid);
 		password1.val("");
 		password2.val("");
 		password1.focus();
@@ -592,20 +684,42 @@ function on_claim_mp_set_password() {
  * Sets the password and generates a new mp.
  */
 function on_new_mp_set_password() {
-	if (new_mp != null && !confirm("You already created a new money packet.  Discard and start a new one?")) return;
 	var password1 = $("#new_mp_password1");
 	var password2 = $("#new_mp_password2");
 	var valid = validate_passwords(password1.val(), password2.val());
 	if (valid == "Valid") {
-		$("#new_mp_set_password_error").text("");
+		$("#new_mp_password_msg").text("");
 		
-		// generate private key for claim mp
+		// confirm starting new packet
+		if (new_mp != null) {
+			if (!confirm("You already started a new money packet.  Discard and start a new one?")) return;
+			new_mp = null;
+			page_manager.clear_nexts();
+		}
+		
+		// generate private key for new mp
 		var new_mp_private_key = bitcore.PrivateKey();
 		new_mp_public_address = new_mp_private_key.toAddress().toString();
-		new_mp = sjcl.encrypt(password1.val(), new_mp_private_key.toWIF());
-		page_manager.next("new_mp_download_page");
+		if ($("#new_mp_bip38_checkbox").is(":checked")) {
+			if (confirm("BIP38 encryption can take a minute or two and sometimes crashes in the browser.  Continue?")) {
+				$("#new_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
+				setTimeout(function() {	// hack to show encrypting message
+					new_mp = {};
+					new_mp["publicAddress"] = new_mp_private_key.toAddress().toString();
+					new_mp["privateKey"] = bip38.encrypt(new_mp_private_key.toWIF(), password1.val(), new_mp_private_key.toAddress().toString());
+					new_mp["encryption"] = "bip38";
+					page_manager.next("new_mp_download_page");
+					$("#new_mp_password_msg").css("color","black").text("");
+				}, 50);
+			}
+		} else {
+			new_mp = {};
+			new_mp["privateKey"] = sjcl.encrypt(password1.val(), new_mp_private_key.toWIF(), { iter:DEFAULT_ITER });
+			new_mp["encryption"] = "sjcl";
+			page_manager.next("new_mp_download_page");
+		}
 	} else {
-		$("#new_mp_set_password_error").text(valid);
+		$("#new_mp_password_msg").css("color","red").text(valid);
 		password1.val("");
 		password2.val("");
 		password1.focus();
@@ -619,10 +733,10 @@ function on_new_mp_set_password() {
  */
 function on_claim_mp_download() {
 	if (isIE) {
-		window.navigator.msSaveBlob(new Blob([claim_mp]), "money.bit");
+		window.navigator.msSaveBlob(new Blob([JSON.stringify(claim_mp)]), "money.bit");
 	} else {
 		var a = window.document.createElement('a');
-		a.href = window.URL.createObjectURL(new Blob([claim_mp], {type: 'application/json'}));
+		a.href = window.URL.createObjectURL(new Blob([JSON.stringify(claim_mp)], {type: 'application/json'}));
 		a.download = 'money.bit';
 		a.target="_blank";
 		document.body.appendChild(a);
@@ -636,10 +750,10 @@ function on_claim_mp_download() {
  */
 function on_new_mp_download() {
 	if (isIE) {
-		window.navigator.msSaveBlob(new Blob([new_mp]), "money.bit");
+		window.navigator.msSaveBlob(new Blob([JSON.stringify(new_mp)]), "money.bit");
 	} else {
 		var a = window.document.createElement('a');
-		a.href = window.URL.createObjectURL(new Blob([new_mp], {type: 'application/json'}));
+		a.href = window.URL.createObjectURL(new Blob([JSON.stringify(new_mp)], {type: 'application/json'}));
 		a.download = 'money.bit';
 		a.target="_blank";
 		document.body.appendChild(a);
@@ -1014,6 +1128,7 @@ function on_unlocked_mp_add_amt() {
  * Handles when user types amount into new mp add funds page.
  */
 function on_new_mp_add_amt() {
+	// debug: page_manager.next("new_mp_add_done_page");
 	var amt = $("#new_mp_add_amt").val();
 	var msg = validate_positive_amt(amt);
 	var error = $("#new_mp_add_amt_error");
@@ -1135,6 +1250,18 @@ function update_imported_buttons() {
 	}
 }
 
+function on_new_mp_advanced_link() {
+	var displayed = $("#new_mp_advanced_div").css("display") != "none"
+	$("#new_mp_advanced_link").text(displayed ? "\u25b8 Advanced" : "\u25be Advanced");
+	displayed ? $("#new_mp_advanced_div").hide() : $("#new_mp_advanced_div").show();
+}
+
+function on_claim_mp_advanced_link() {
+	var displayed = $("#claim_mp_advanced_div").css("display") != "none"
+	$("#claim_mp_advanced_link").text(displayed ? "\u25b8 Advanced" : "\u25be Advanced");
+	displayed ? $("#claim_mp_advanced_div").hide() : $("#claim_mp_advanced_div").show();
+}
+
 // ------------------------------- UTILITIES ----------------------------
 
 /**
@@ -1234,8 +1361,12 @@ function validate_passwords(password1, password2) {
 		return "The passwords you entered do not match";
 	} else if (password1 == "") {	
 		return "The password cannot be blank";
-	} else if (password1.length < 5) {
-		return "The password must be at least 5 characters";
+	} else if (password1.length < 6) {
+		return "The password must be at least 6 characters";
+	} else if (!(/[a-z]/.test(password1))) {
+		return "The password must contain a lower case character";
+	} else if (!(/[A-Z]/.test(password1))) {
+		return "The password must contain an upper case character";
 	} else {
 		return "Valid";
 	}

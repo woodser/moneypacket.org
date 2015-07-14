@@ -21,3 +21,14 @@ moneypacket.org-v0.21
 - added notice that local currencies will fluctuate against market price of bitcoin
 - recommended Copay on claim to bitcoin address page
 - added background image for bling
+
+07/14/2015
+moneypacket.org-v0.22
+- Enabled SSL/TSL
+- Added BIP38 support
+- Modified money packet format to support BIP38
+- De-minified dependency files
+- Increased iteration for SJCL encryption to 10000
+- Stricter password requirements: at least 6 characters, one upper, one lower
+- Added warning to not send packet with password
+- Minor cosmetics

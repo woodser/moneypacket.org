@@ -55,7 +55,7 @@ img[src="img/btc_logo.png"] {
 }
 
 #body_div {
-	margin-bottom:25px;
+	margin-bottom:40px;
 	min-width:950px;
 }
 
@@ -76,12 +76,12 @@ img[src="img/btc_logo.png"] {
 #tips {
 	text-align:center;
 	font-size:15px;
-	margin-bottom:5px;
+	margin-bottom:10px;
 }
 
 #legal {
 	font-size:14px;
-	margin-top:30px;
+	margin-top:0px;
 	margin-bottom:10px;
 }
 
@@ -115,7 +115,7 @@ img[src="img/btc_logo.png"] {
 #background_page {
 	background-image: url('img/envelope.png');
 	background-size:810px 475px;
-	opacity:0.15;
+	opacity:0.11;
 }
 
 
@@ -216,6 +216,7 @@ button {
 
 .checkmark_line {
 	line-height:30px;
+	font-size:18px;
 }
 
 .link_container {
@@ -270,4 +271,9 @@ a[disabled], div[disabled] {
 
 div[disabled] img {
 	display:none;
+}
+
+.warning_img {
+	width:25px;
+	height:21.83px;
 }
