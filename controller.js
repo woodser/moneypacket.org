@@ -475,7 +475,7 @@ function on_unlock() {
 			imported_private_key = sjcl.decrypt($("#import_password").val(), imported_mp.privateKey);
 			on_success();
 		} else if (imported_mp.encryption == "bip38") {
-			if (confirm("Your browser will freeze for a moment to decrypt the private key.  Continue?")) {
+			if (confirm("Your browser may freeze for a moment during decryption.  Continue?")) {
 				$("#import_password_msg").css("color","green").text("BIP38 decrypting, please wait...");
 				setTimeout(function() {	// delay encryption so message displays
 					var decrypted = bip38.decrypt(imported_mp.privateKey, $("#import_password").val());
@@ -655,7 +655,7 @@ function on_claim_mp_set_password() {
 		var claim_mp_private_key = bitcore.PrivateKey();
 		claim_mp_public_address = claim_mp_private_key.toAddress().toString();
 		if ($("#claim_mp_bip38_checkbox").is(":checked")) {
-			if (confirm("Your browser will freeze for a moment to encrypt the private key.  Continue?")) {
+			if (confirm("Your browser may freeze for a moment during encryption.  Continue?")) {
 				$("#claim_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
 				setTimeout(function() {	// hack to show encrypting message
 					claim_mp = {};
@@ -701,7 +701,7 @@ function on_new_mp_set_password() {
 		var new_mp_private_key = bitcore.PrivateKey();
 		new_mp_public_address = new_mp_private_key.toAddress().toString();
 		if ($("#new_mp_bip38_checkbox").is(":checked")) {
-			if (confirm("Your browser will freeze for a moment to encrypt the private key.  Continue?")) {
+			if (confirm("Your browser may freeze for a moment during encryption.  Continue?")) {
 				$("#new_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
 				setTimeout(function() {	// hack to show encrypting message
 					new_mp = {};
@@ -1362,11 +1362,11 @@ function validate_passwords(password1, password2) {
 	} else if (password1 == "") {	
 		return "The password cannot be blank";
 	} else if (password1.length < 6) {
-		return "The password must be at least 6 characters with upper and lower case";
+		return "The password must contain at least 6 characters";
 	} else if (!(/[a-z]/.test(password1))) {
-		return "The password must be at least 6 characters with upper and lower case";
+		return "The password must contain at least 1 lowercase character";
 	} else if (!(/[A-Z]/.test(password1))) {
-		return "The password must be at least 6 characters with upper and lower case";
+		return "The password must contain at least 1 uppercase character";
 	} else {
 		return "Valid";
 	}
