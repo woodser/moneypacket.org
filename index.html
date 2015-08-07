@@ -10,8 +10,6 @@
 		
 		<script src="lib/jquery-2.1.4.js"></script>
 		<script src="lib/jquery-ui.js"></script>
-		<script src="lib/bitcore.js"></script>
-		<script src="lib/bitcore-explorers.js"></script>
 		<script src="lib/sjcl.js"></script>	
 		<script src="lib/qrcode.js"></script>
 		<script src="lib/bip38.js"></script>
@@ -21,7 +19,7 @@
 		<div id="container">
 			<div id="top_div">
 				<div id="title_div"><img src="img/btc_logo.png"><a href="index.html" id="title">moneypacket.org</a></div><br>
-				<div id="subtitle_div">Digital envelopes for real bitcoins, no trusted third parties.</div>
+				<div id="subtitle_div">Email bitcoins as an attachment.  No account or trusted third parties.</div>
 			</div>
 			<div id="header_div">
 				<div id="offline_div" style="display:none;">Offline</div>
@@ -42,20 +40,20 @@
 					<!-- Home page -->
 					<div id="home_page" class="page">
 						<div>
-							<p style="text-align:left">A money packet is a file which contains bitcoins, like a digital envelope containing money.</p>
-							<p>Money packets can be shared over email or Dropbox or backed up for storage, like any other file.</p>
-							<p>This site lets you create money packets and claim their funds.</p>
+							<p>Money packets are the best way to send bitcoins over email or Dropbox without an account.</p>
+							<p>A money packet is a shareable file which contains bitcoins, like a digital envelope for money.</p>
+							<p>This website lets you create money packets and claim their funds.</p>
 							<div>
 								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">Recipients don't need a bitcoin wallet to receive funds.</span><br>
-								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">All funds are password protected by a password you create.</span><br>
-								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">The transaction is reversible until the receiver claims the funds.</span><br>
-								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">This website is free, open source, and runs entirely in your browser, not a third party server.</span><br>
-								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">There is no account sign up.</span><br>
+								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">Both parties may access funds in a shared money packet until claimed.</span><br>
+								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">Your funds are never entrusted to a third party, including this website.</span><br>
+								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">Money packets are protected by a password which you create.</span><br>
+								<span class="checkmark_line"><img class="checkmark" src="img/checkmark.png">This service is free (tips voluntary), open source, and runs only in your browser.</span><br>
 							</div>
 							<div>&nbsp;</div>
 							<div class="link_container">
+								<div class="nav_link" id="home_create_link">Create a money packet<img class="link_arrow" src="img/arrow.png"></div>
 								<div class="nav_link" id="home_import_link">Claim a money packet<img class="link_arrow" src="img/arrow.png"></div>
-								<div class="nav_link" id="home_create_link">Create a new money packet<img class="link_arrow" src="img/arrow.png"></div>
 							</div>
 						</div>
 					</div>
@@ -76,7 +74,7 @@
 					<div id="import_paste_page" class="page" style="display:none;">
 						<div>
 							<p>Copy and paste the entire file contents of your money packet here:</p>
-							<p><textarea id="import_paste_textarea" rows="4" spellcheck="false" placeholder="Paste money packet here..."></textarea></p>
+							<p><textarea id="import_paste_textarea" spellcheck="false" placeholder="Paste money packet here..."></textarea></p>
 							<p id="import_paste_error" style="color:red;"></p>
 						</div>
 					</div>
@@ -84,7 +82,7 @@
 						<div>
 							<p>Your money packet was imported successfully.</p>
 							<p>Enter the password to access its funds.</p>
-							<p>If you received this money packet from someone, the sender should give you the password.</p>
+							<p>If you received this money packet, the sender should give you the password.</p>
 							<p>Password: <input type="password" id="import_password"></p>
 							<p id="import_password_msg" style="color:red;"></p>
 							<div class="button" id="unlock_button">Unlock</div>
@@ -93,8 +91,8 @@
 					<div id="unlocked_page" class="page" style="display:none;">
 						<div>
 							<p>Your money packet is unlocked!</p>
-							<p>The balance is <span id="unlocked_balance"></span>.&nbsp;&nbsp;<span id="fluctuate">This amount may fluctuate with the market price of bitcoin.</span></p>
-							<p>If you received this money packet from someone, the sender still has access to the funds until you claim them.</p>
+							<p>The balance is <span id="unlocked_balance"></span>.&nbsp;&nbsp;<span id="fluctuate">This amount will fluctuate with the market price of bitcoin.</span></p>
+							<p>If you received this money packet from someone, the sender can access the funds until claimed.</p>
 							<p>&nbsp;</p>
 							<div class="link_container">
 								<div class="nav_link" id="unlocked_claim_mp_link">Claim funds to a new money packet<img class="link_arrow" src="img/arrow.png"></div>
@@ -107,45 +105,43 @@
 					<!-- Claim money packet to new money packet -->
 					<div id="claim_mp_password_page" class="page" style="display:none;">
 						<div>
-							<p>Lets create a new money packet to receive funds from the original money packet.</p>
-							<p>Enter a password to protect the new money packet.  The password must contain:
-								<ul>
-									<li>at least 6 characters</li>
-									<li>at least 1 uppercase and 1 lowercase character</li>
-								</ul>
-							</p>
-							<p>This password will be required to access funds within the money packet later on, so <b><span style="color:red">don't lose it!</span></b></p>
+							<p>Lets create a new money packet and transfer funds from the original money packet.</p>
+							<p>Enter a password to protect the new money packet.</p>
+							<p>This password will be required to access funds later on so <span style="color:red"><b>don't lose it.</b></span></p>
+							<p>The password must contain at least 6 characters with 1 uppercase and 1 lowercase.</p>
 							<p>Password: <input type="password" id="claim_mp_password1"></input>&nbsp;&nbsp;&nbsp;&nbsp;Confirm: <input type="password" id="claim_mp_password2"></input></p>
 							<p id="claim_mp_password_msg" style="color:red;"></p>
 							<div class="button" id="claim_mp_set_password_button">Create New Money Packet</div>
 							<p><a href="#" onclick="event.preventDefault();" id="claim_mp_advanced_link">Advanced</a></p>
-							<p id="claim_mp_advanced_div" style="text-indent:10px;"><input type="checkbox" id="claim_mp_bip38_checkbox">&nbsp; BIP38 private key encryption (slow but very secure).</p>
+							<p id="claim_mp_advanced_div" style="text-indent:10px;"><input type="checkbox" id="claim_mp_bip38_checkbox">&nbsp; BIP38 private key encryption (slow but very secure)</p>
 						</div>
 					</div>
 					<div id="claim_mp_download_page" class="page" style="display:none;">
 						<div>
 							<p>Your new money packet has been created.</p>
 							<p>For safe keeping, lets save your new money packet before we transfer funds to it.</p>
-							<p>Remember where you save it!</p>
+							<p>Remember where you save your money packet!</p>
 							<div class="button" id="claim_mp_download_button">Download</div>
-							<p><input type="checkbox" id="claim_mp_download_confirm_checkbox" autocomplete="off">&nbsp;After your money packet is saved, click here to add funds</p>
 							<p>&nbsp;</p>
 							<div class="link_container">
+								<div class="nav_link" id="claim_mp_download_confirm_button">Click here to transfer funds after your money packet is saved<img class="link_arrow" src="img/arrow.png"></div>
 								<div class="nav_link" id="claim_mp_download_copy_link">I'd rather copy and paste the file contents instead<img class="link_arrow" src="img/arrow.png"></div>
-							</div>							
+							</div>						
 						</div>
 					</div>
 					<div id="claim_mp_copy_page" class="page" style="display:none;">
 						<div>
-							<p>This text represents your new encrypted money packet.</p>
-							<p>Copy and paste this text into a file on your computer, and don't lose it! :)</p>
-							<p><textarea id="claim_mp_copy_textarea" rows="4" readonly></textarea></p>
-							<p><input type="checkbox" id="claim_mp_copy_confirm_checkbox" autocomplete="off">&nbsp;After your money packet is saved, click here to add funds</p>
+							<p>This text represents your new money packet.</p>
+							<p>Copy and paste this text into a file on your computer and <span style="color:red"><b>don't lose it.</b></span></p>
+							<p><textarea id="claim_mp_copy_textarea" readonly></textarea></p>
+							<div class="link_container">
+								<div class="nav_link" id="claim_mp_copy_confirm_button">Click here to transfer funds after your money packet is saved<img class="link_arrow" src="img/arrow.png"></div>
+							</div>
 						</div>
 					</div>
 					<div id="claim_mp_send_page" class="page" style="display:none;">
 						<div>
-							<p>We're ready to transfer funds from your original money packet to your new one!</p>
+							<p>We're ready to transfer funds from the original money packet to your new one!</p>
 							<p>How much would you like to transfer?</p>
 							<p>Available balance: <span id="claim_mp_send_balance"></span>&nbsp;&nbsp;|&nbsp;&nbsp;Bitcoin transaction fee: ~<span id="claim_mp_send_fee"></span></p>
 							<p><a href="#" id="claim_mp_send_full_balance">Transfer full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span id="claim_mp_send_symbol"></span>&nbsp;<input id="claim_mp_send_amt" type="text">&nbsp;<span id="claim_mp_send_code"></span>&nbsp;&nbsp;&nbsp;</p>
@@ -159,19 +155,19 @@
 							<p><span id="claim_mp_done_transfer_amt"></span> was successfully transferred to your new money packet.</p>
 							<p>We already saved your new money packet in an earlier step.</p>
 							<p>Your original money packet's balance is <span id="claim_mp_done_old_balance"></span>.</p>
-							<p>Thanks for using this service! :)</p>
+							<p>Thank you for using this service! :)</p>
 							<p>&nbsp;</p>
 							<div class="button" id="claim_mp_done_another_link">Make another transaction</div>
 							<div class="button" id="claim_mp_done_home_link">Back to home</div>
 							<p>&nbsp;</p>
-							<p><img src="img/warning.jpg" class="warning_img">&nbsp;Important: don't send a money packet with its password.  Try to keep them separate.</p>
+							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;Don't send a money packet with its password.  Try to keep them separate.</p>
 						</div>
 					</div>
 					
 					<!-- Claim money packet to bitcoin address -->
 					<div id="claim_address_page" class="page" style="display:none;">
 						<div>
-							<p>You may claim the funds in your money packet to a bitcoin address which you provide.</p>
+							<p>You can claim the funds in your money packet to a bitcoin address which you provide.</p>
 							<p>Enter the bitcoin address to receive the funds and an amount to transfer.</p>
 							<p>Don't have a bitcoin address?  I recommend installing <a target="_blank" href="https://copay.io/">Copay</a> which works on all devices.</p>
 							<p>Available balance: <span id="claim_address_balance"></span>&nbsp;&nbsp;|&nbsp;&nbsp;Bitcoin transaction fee: ~<span id="claim_address_fee"></span></p>
@@ -195,13 +191,12 @@
 					<!-- Add funds to existing money packet -->
 					<div id="unlocked_mp_add_page" class="page" style="display:none;">
 						<div>
-							<p>This is your money packet's receive address.</p>
-							<p>Send funds to this address to load your money packet.</p>
+							<p>This is your money packet's receive address.&nbsp;&nbsp;Send funds here to load your money packet.</p>
 							<p>Amount:&nbsp;<span id="unlocked_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="unlocked_mp_add_amt">&nbsp;<span id="unlocked_mp_add_code"></span>&nbsp;<span id="unlocked_mp_add_amt_error"></span></p>
-							<div id="unlocked_mp_add_btc_conversion" style="text-align:center;color:green">&nbsp;</div>
-							<div style="width:100%;text-align:center"><div id="unlocked_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></div></div>
+							<p id="unlocked_mp_add_waiting" style="text-align:center;color:green;">Waiting for funds...</p>
+							<div style="width:100%;text-align:center"><a id="unlocked_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></a></div>
 							<div id="unlocked_mp_qrcode_address" style="text-align:center;"></div>
-							<p id="unlocked_mp_add_waiting" style="text-align:center;">Waiting for funds...</p>
+							<div id="unlocked_mp_add_btc_conversion" style="text-align:center;">&nbsp;</div>
 						</div>
 					</div>
 					<div id="unlocked_mp_add_done_page" class="page" style="display:none;">
@@ -218,13 +213,9 @@
 					<!-- Create new money packet pages -->
 					<div id="new_mp_password_page" class="page" style="display:none;">
 						<div>
-							<p>Enter a password to protect your money packet.  The password must contain:
-								<ul>
-									<li>at least 6 characters</li>
-									<li>at least 1 uppercase and 1 lowercase character</li>
-								</ul>
-							</p>
-							<p>This password will be required to access funds within the money packet later on, so <b><span style="color:red">don't lose it!</span></b></p>
+							<p>Enter a password to protect your money packet.</p>
+							<p>This password will be required to access funds later on so <b><span style="color:red">don't lose it.</span></b></p>
+							<p>The password must contain at least 6 characters with 1 uppercase and 1 lowercase.</p>
 							<p>Password: <input type="password" id="new_mp_password1"></input>&nbsp;&nbsp;&nbsp;&nbsp;Confirm: <input type="password" id="new_mp_password2"></input></p>
 							<p id="new_mp_password_msg" style="color:red;"></p>
 							<div class="button" id="new_mp_set_password_button">Create Money Packet</div>
@@ -236,53 +227,60 @@
 						<div>
 							<p>Your money packet has been created.</p>
 							<p>For safe keeping, lets save it to your device before we add funds.</p>
-							<p>Remember where you save it!</p>
+							<p>Remember where you save your money packet!</p>
 							<div class="button" id="new_mp_download_button">Download</div>
-							<input type="checkbox" id="new_mp_download_confirm_checkbox" autocomplete="off">&nbsp;After your money packet is saved, click here to add funds</p>
 							<p>&nbsp;</p>
 							<div class="link_container">
+								<div class="nav_link" id="new_mp_download_confirm_button">Click here to add funds after your money packet is saved<img class="link_arrow" src="img/arrow.png"></div>
 								<div class="nav_link" id="new_mp_download_copy_link">I'd rather copy and paste the file contents instead<img class="link_arrow" src="img/arrow.png"></div>
 							</div>
 						</div>
 					</div>
 					<div id="new_mp_copy_page" class="page" style="display:none;">
 						<div>
-							<p>This text represents your encrypted money packet.</p>
-							<p>Copy and paste this text into a file on your computer, and don't lose it! :)</p>
-							<p><textarea id="new_mp_copy_textarea" rows="4" readonly></textarea></p>
-							<p><input type="checkbox" id="new_mp_copy_confirm_checkbox" autocomplete="off">&nbsp;After your money packet is saved, click here to add funds</p>
+							<p>This text represents your money packet.</p>
+							<p>Copy and paste this text into a file on your computer and <span style="color:red"><b>don't lose it.</b></span></p>
+							<p><textarea id="new_mp_copy_textarea" readonly></textarea></p>
+							<div class="link_container">
+								<div class="nav_link" id="new_mp_copy_confirm_button">Click here to add funds after your money packet is saved<img class="link_arrow" src="img/arrow.png"></div>
+							</div>
 						</div>
 					</div>
 					<div id="new_mp_add_page" class="page" style="display:none;">
 						<div>
-							<p>This is your money packet's receive address.</p>
-							<p>Send funds to this address to load your money packet.</p>
+							<p>This is your money packet's receive address.&nbsp;&nbsp;Send funds here to load your money packet.</p>
 							<p>Amount:&nbsp;<span id="new_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="new_mp_add_amt">&nbsp;<span id="new_mp_add_code"></span>&nbsp;<span id="new_mp_add_amt_error"></span></p>
-							<div id="new_mp_add_btc_conversion" style="text-align:center;color:green">&nbsp;</div>
-							<div style="width:100%;text-align:center"><div id="new_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></div></div>
+							<p id="new_mp_add_waiting" style="text-align:center;color:green">Waiting for funds...</p>
+							<div style="width:100%;text-align:center"><a id="new_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></a></div>
 							<div id="new_mp_qrcode_address" style="text-align:center;"></div>
-							<p id="new_mp_add_waiting" style="text-align:center;">Waiting for funds...</p>
+							<div id="new_mp_add_btc_conversion" style="text-align:center;">&nbsp;</div>
+							<p>Tip $1 for this service?  Tips are deducted automatically when funds are received.</p>
+							<ul class="tip_links" style="text-align:center;">
+								<li id="tip0" onclick="on_tip('tip0')" class="tip_link">No thanks</li>
+								<li id="tip1" onclick="on_tip('tip1')" class="tip_link">Sure!</li>
+							</ul>
 						</div>
 					</div>
 					<div id="new_mp_add_done_page" class="page" style="display:none;">
 						<div>
-							<p>Funds added successfully!  Your money packet's balance is <span id="new_mp_add_done_balance"></span>.</p>
+							<p id="new_mp_add_done_msg">Funds added successfully!</p>
+							<p>Your money packet's balance is <span id="new_mp_add_done_balance"></span>.</p>
 							<p>We already saved your money packet in an earlier step.</p>
 							<p>From here you could email it to a friend or save it for a rainy day, whatever you want to do!</p>
-							<p>Thanks for using this service :)</p>
+							<p>Thank you for using this service! :)</p>
 							<p>&nbsp;</p>
 							<div class="button" id="new_mp_add_home_link">Go back home</div>
 							<p>&nbsp;</p>
-							<p><img src="img/warning.jpg" class="warning_img">&nbsp;Important: don't send a money packet with its password.  Try to keep them separate.</p>
+							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;Don't send a money packet with its password.  Try to keep them separate.</p>
 						</div>
 					</div>
 				</div>
 				<div id="right_div"><img id="right_arrow" class="nav_arrow" src="img/arrow.png"></div>
 			</div>
 			<div id="footer_div">
-				<div id="footer_links"><a href="https://github.com/woodser/moneypacket.org" target="_blank">source</a> | <a href="https://github.com/woodser/moneypacket.org/archive/master.zip">zip</a> | <a href="changelog.txt" target="_blank">version 0.22 alpha</a></div>
-				<div id="tips">Tip jar: 1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo</div>			
-				<div id="legal">&#169;moneypacket.org.  JavaScript copyrights included in the source.  No warranty.</div>
+				<div id="footer_links"><a href="https://github.com/woodser/moneypacket.org" target="_blank">source</a> | <a href="changelog.txt" target="_blank">version 0.23 beta</a></div>
+				<div id="tips">Tips: 1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo</div>
+				<div id="legal">&#169;2015 moneypacket.org.  JavaScript copyrights included in the source.  No warranty.</div>
 			</div>
 		</div>
 	</body>

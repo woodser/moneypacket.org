@@ -1,5 +1,6 @@
 moneypacket.org
-Digital envelopes for bitcoin, no trusted third parties.
+Email bitcoins as an attachment. No account or trusted third parties.
+Tips: 1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo
 
 06/26/2015
 moneypacket.org-v0.1
@@ -16,11 +17,11 @@ moneypacket.org-v0.2
 
 07/12/2015
 moneypacket.org-v0.21
-- clarified terminology around claiming vs sending vs receiving
-- moved transaction fee notice out of confirmation dialog
-- added notice that local currencies will fluctuate against market price of bitcoin
-- recommended Copay on claim to bitcoin address page
-- added background image for bling
+- Clarified terminology around claiming vs sending vs receiving
+- Moved transaction fee notice out of confirmation dialog
+- Added notice that local currencies will fluctuate against market price of bitcoin
+- Recommended Copay on claim to bitcoin address page
+- Added background image for bling
 
 07/14/2015
 moneypacket.org-v0.22
@@ -32,3 +33,13 @@ moneypacket.org-v0.22
 - Stricter password requirements: at least 6 characters, one upper, one lower
 - Added warning to not send packet with password
 - Minor cosmetics
+
+08/07/2015
+moneypacket.org-v0.23
+- Users can write personal notes in money packets
+- Added timestamps and default notes to money packets
+- Integrated tips into the process as yes/no
+- Hyperlinked QR codes to open user's local wallet
+- Changed download confirmation from checkbox to button for consistency
+- Asynchronously load big dependencies for faster load times
+- Cosmetics and wording

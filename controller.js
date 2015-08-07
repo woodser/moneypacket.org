@@ -1,9 +1,16 @@
 /**
- * v0.22
+ * MEDIUM:
  * gpg
- * bip38
+ * mobile
+ * hd
+ * password recovery service
+ * faq
+ * allow funds to be viewable
+ * fireworks for tips
+ * password requirements, especially with bip38
+ * modifying textarea causes page to advance, only initial paste
  * 
- * v0.3+
+ * LOW:
  * offline mode isn't reliably detected
  * keyboard navigation through most of it?
  * rather than positive amt, positive amt above and beyond dust
@@ -18,24 +25,20 @@
  * refactor to be truly object-oriented?
  * inconsistent naming convention from _error to _msg
  * realtime amount validations do not report negative amounts
- * display transaction fee on send pages
- * display full balance in confirm
  * automatically import mp after new mp created and funded
  * set expiration date to claim funds before they're returned
  * compute minimum send amount and pre-validate in forms instead of try catch
  * Give credit to BitPay for BitCore and recommend CoPay as the best wallet I have used to date
  * Step by step both the features and the process.
  * Sender may continue to add funds to a money packet at any time. (HD coming eventually, if possible)
- * "prices are updated every minute"
- * special treatment if they give a tip :)
  * mouse movements to generate private key
  */
 
 // dependencies
-var bitcore = require('bitcore');
-var insight = require('bitcore-explorers').Insight();
 var sjcl = require('sjcl');
 var Bip38 = require('bip38');
+var bitcore = null;	// loaded asynchronously
+var insight = null; // loaded asynchronously
 
 // instance variables
 var page_manager;
@@ -48,13 +51,16 @@ var unlocked_mp_balance;
 var claim_mp;
 var claim_mp_public_address;
 var new_mp;
+var new_mp_private_key;
 var new_mp_public_address;
 var new_mp_listener;
 var new_mp_network_info;
 var new_mp_balance;
+var new_mp_add_done_tip;
 var exchange_rates = null;
 var online = true;
 var bip38;
+var tip_selection;
 
 // constants
 var NETWORK_REFRESH_RATE = 1000;
@@ -63,6 +69,8 @@ var TIP_ADDRESS = "1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo";
 var EDGE_WIDTH = 150;
 var PREFERRED_UNIT_DEFAULT = "USD";
 var DEFAULT_ITER = 10000;
+var DEFAULT_TIP = 1;
+var DEFAULT_TIP_UNIT = "USD";
 
 // IE workaround
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
@@ -71,6 +79,14 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode;
  * Document initialization.
  */
 $(document).ready(function() {
+	// load bitcore asynchronously
+	jQuery.getScript("lib/bitcore.js", function(script, status) {
+		jQuery.getScript("lib/bitcore-explorers.js", function(script, status) {
+			bitcore = require('bitcore');
+			insight = require('bitcore-explorers').Insight();
+		});
+	});
+	
 	// general setup
 	$(".page").hide();
 	$("#background_page").show();
@@ -95,7 +111,7 @@ $(document).ready(function() {
 	// import process
 	$("#import_paste_link").click(function() { page_manager.next("import_paste_page"); });
 	$("#import_paste_textarea").on('input', on_import_paste_textarea);
-	$("#import_password").keyup(function(event) { if (event.keyCode == 13) { $("#import_password").blur(); on_unlock(); } });
+	$("#import_password").keyup(function(event) { if (event.keyCode == 13) { on_unlock(); } });
 	$("#unlock_button").click(on_unlock);
 	$("#unlocked_claim_mp_link").click(function() { page_manager.next("claim_mp_password_page"); });
 	$("#unlocked_claim_address_link").click(function() { page_manager.next("claim_address_page"); });
@@ -108,8 +124,8 @@ $(document).ready(function() {
 	$("#claim_mp_advanced_link").click(on_claim_mp_advanced_link);
 	$("#claim_mp_download_button").click(on_claim_mp_download);
 	$("#claim_mp_download_copy_link").click(function() { page_manager.next("claim_mp_copy_page"); });
-	$("#claim_mp_download_confirm_checkbox").click(on_claim_mp_download_confirm_checkbox);
-	$("#claim_mp_copy_confirm_checkbox").click(on_claim_mp_copy_confirm_checkbox);
+	$("#claim_mp_download_confirm_button").click(on_claim_mp_download_confirm_button);
+	$("#claim_mp_copy_confirm_button").click(on_claim_mp_copy_confirm_button);
 	$("#claim_mp_send_full_balance").click(on_claim_mp_send_full_balance);
 	$("#claim_mp_send_button").click(on_claim_mp_send);
 	$("#claim_mp_send_amt").on("input", function() { on_claim_mp_send_amt(); });
@@ -136,8 +152,8 @@ $(document).ready(function() {
 	$("#new_mp_advanced_link").click(on_new_mp_advanced_link);
 	$("#new_mp_download_button").click(on_new_mp_download);
 	$("#new_mp_download_copy_link").click(function() { page_manager.next("new_mp_copy_page"); });
-	$("#new_mp_download_confirm_checkbox").click(on_new_mp_download_confirm_checkbox);
-	$("#new_mp_copy_confirm_checkbox").click(on_new_mp_copy_confirm_checkbox);
+	$("#new_mp_download_confirm_button").click(on_new_mp_download_confirm_button);
+	$("#new_mp_copy_confirm_button").click(on_new_mp_copy_confirm_button);
 	$("#new_mp_add_amt").on("input", function() { on_new_mp_add_amt(); });
 	$("#new_mp_add_home_link").click(function() { page_manager.move("home_page"); });
 });
@@ -264,8 +280,9 @@ function PageManager(start_id) {
 			
 			// draw qr code
 			$("#unlocked_mp_qrcode").empty();
+			$("#unlocked_mp_qrcode").attr("href", "bitcoin:" + imported_public_address);
 			new QRCode("unlocked_mp_qrcode", {
-				text:imported_public_address,
+				text:"bitcoin:" + imported_public_address,
 				width:125,
 				height:125
 			});
@@ -283,11 +300,10 @@ function PageManager(start_id) {
 			$("#claim_mp_bip38_checkbox").prop("checked", false);
 			break;
 		case "claim_mp_download_page":
-			$("#claim_mp_download_confirm_checkbox").prop("checked", false);
+			$("#claim_mp_download_confirm_button").hide();
 			break;
 		case "claim_mp_copy_page":
-			$("#claim_mp_copy_textarea").val(JSON.stringify(claim_mp));
-			$("#claim_mp_copy_confirm_checkbox").prop("checked", false);
+			$("#claim_mp_copy_textarea").val(get_mp_text(claim_mp));
 			break;
 		case "claim_mp_send_page":
 			$("#claim_mp_send_amt").val("");
@@ -316,14 +332,13 @@ function PageManager(start_id) {
 			$("#new_mp_bip38_checkbox").prop("checked", false);
 			break;
 		case "new_mp_download_page":
-			$("#new_mp_download_confirm_checkbox").prop("checked", false);
 			new_mp_listener = new network_listener(new_mp_public_address, NETWORK_REFRESH_RATE, on_new_mp_balance);
 			new_mp_network_info = {};
 			new_mp_balance = 0;
+			$("#new_mp_download_confirm_button").hide();
 			break;
 		case "new_mp_copy_page":
-			$("#new_mp_copy_textarea").val(JSON.stringify(new_mp));
-			$("#new_mp_copy_confirm_checkbox").prop("checked", false);
+			$("#new_mp_copy_textarea").val(get_mp_text(new_mp));
 			break;
 		case "new_mp_add_page":
 			$("#new_mp_qrcode").empty();
@@ -333,15 +348,26 @@ function PageManager(start_id) {
 			update_claim_address_unit_labels();
 			$("#new_mp_add_btc_conversion").html("&nbsp;");
 			
+			// reset tip selection
+			$(".tip_link").removeClass("active");
+			$("#tip0").addClass("active");
+			tip_selection = "tip0";
+			
 			// draw qr code
 			$("#new_mp_qrcode").empty();
+			$("#new_mp_qrcode").attr("href", "bitcoin:" + new_mp_public_address);
 			new QRCode("new_mp_qrcode", {
-				text:new_mp_public_address,
+				text:"bitcoin:" + new_mp_public_address,
 				width:125,
 				height:125
 			});
 			$("#new_mp_qrcode_address").text(new_mp_public_address);
 		case "new_mp_add_done_page":
+			if (new_mp_add_done_tip) {
+				$("#new_mp_add_done_msg").text("Thank you for the tip!!!");
+			} else {
+				$("#new_mp_add_done_msg").text("Funds added successfully!");
+			}
 			break;
 		default:
 			break;
@@ -410,16 +436,7 @@ function on_import_upload(files) {
 	var file = files[0];
 	var reader = new FileReader();
 	reader.onload = function(event) {
-		try {
-			// read JSON
-			imported_mp = JSON.parse(reader.result);
-			
-			// upgrade to v0.22 format (adds bip38 encryption)
-			if (valid_v21(imported_mp)) imported_mp = v21_to_v22(imported_mp);
-			if (!valid_v22(imported_mp)) imported_mp = null;
-		} catch(err) {
-			imported_mp = null;
-		}
+		imported_mp = get_mp(reader.result);
 		if (imported_mp == null) {
 			$("#import_upload_error").text("Invalid money packet.  Make sure you selected the right file.");
 		} else {
@@ -431,21 +448,12 @@ function on_import_upload(files) {
 }
 
 function on_import_paste_textarea() {
-	try {
-		// read JSON
-		imported_mp = JSON.parse($("#import_paste_textarea").val());
-		
-		// upgrade to v0.22 format (adds bip38 encryption)
-		if (valid_v21(imported_mp)) imported_mp = v21_to_v22(imported_mp);	
-		if (!valid_v22(imported_mp)) imported_mp = null;
-	} catch(err) {
-		imported_mp = null;
-		page_manager.clear_nexts();
-	}
+	imported_mp = get_mp($("#import_paste_textarea").val());
 	if ($("#import_paste_textarea").val() == "") {
 		$("#import_paste_error").text("");
 	} else if (imported_mp == null) {
 		$("#import_paste_error").text("Invalid money packet text.  Copy and paste the entire file contents of your money packet.");
+		page_manager.clear_nexts();
 	} else {
 		$("#import_paste_error").text("");
 		page_manager.next("unlock_page");
@@ -453,29 +461,82 @@ function on_import_paste_textarea() {
 }
 
 
-// ------------------------ VERSION CONVERSION FUNCTIONS ---------------------
-function valid_v21(mp) {
+// ----------------------------- INGESTION FUNCTIONS --------------------------
+
+/**
+ * Ingests the given text to extract a money packet.
+ * 
+ * @param text is the text to ingest
+ * @return object with private key and encryption scheme
+ */
+function get_mp(text) {
+	if (text.length == 0) return null;
+	var i = -1;
+	while (i < text.length) {
+		i++;
+		var open_count = 0;
+		if (text.charAt(i) != "{") continue;
+		open_count++;
+		
+		// find close counterpart
+		var j = i;
+		while (j < text.length) {
+			j++;
+			if (text.charAt(j) == "{") open_count++;
+			if (text.charAt(j) == "}") open_count--;
+			if (open_count == 0) {
+				var mp = parse_mp(text.substring(i, j + 1));
+				if (mp != null) return mp;
+				break;
+			}
+		}
+	}
+}
+
+function parse_mp(text) {
+	try {
+		var mp = JSON.parse(text);
+		if (valid_v021(mp)) mp = v021_to_v022(mp);	
+		if (!valid_v022(mp)) mp = null;
+		return mp;
+	} catch (err) {
+		return null;
+	}
+}
+
+function valid_v021(mp) {
 	return mp.iter != null && mp.iv != null && mp.ct != null;
 }
 
-function valid_v22(mp) {
+function valid_v022(mp) {
 	return mp.privateKey != null && (mp.encryption == "sjcl" || mp.encryption == "bip38");
 }
 
-function v21_to_v22(mp) {
+function v021_to_v022(mp) {
 	var converted = {};
 	converted["privateKey"] = JSON.stringify(mp);
 	converted["encryption"] = "sjcl";
 	return converted;
 }
 
+// ------------------------------- IMPORT FUNCTIONS ---------------------------
+
 function on_unlock() {
+	// TODO: make this completely transparent
+	if (bitcore == null || insight == null) {
+		alert("Sorry, some dependencies are not loaded.  Please wait a moment and try again.");
+		return;
+	}
+	
+	// prevent 'enter' from being registered twice
+	$("#import_password").blur();	
+	
 	try {
 		if (imported_mp.encryption == "sjcl") {
 			imported_private_key = sjcl.decrypt($("#import_password").val(), imported_mp.privateKey);
 			on_success();
 		} else if (imported_mp.encryption == "bip38") {
-			if (confirm("Your browser may freeze for a moment during decryption.  Continue?")) {
+			if (confirm("Your browser may freeze for a moment during BIP38 decryption.  Continue?")) {
 				$("#import_password_msg").css("color","green").text("BIP38 decrypting, please wait...");
 				setTimeout(function() {	// delay encryption so message displays
 					var decrypted = bip38.decrypt(imported_mp.privateKey, $("#import_password").val());
@@ -496,13 +557,13 @@ function on_unlock() {
 			on_fail();
 		}
 	} catch (err) {
-		console.log(err);
 		on_fail();
 	}
 	
 	function on_fail() {
 		$("#import_password_msg").css("color","red").text("Password is incorrect, try again.");
 		$("#import_password").val("");
+		$("#import_password").focus();
 	}
 	
 	function on_success() {
@@ -534,7 +595,7 @@ function on_imported_balance(err, amt, utxos, tx) {
 	unlocked_mp_balance = amt;
 	
 	// update balance fields
-	update_imported_balances();
+	update_imported_balances(unlocked_mp_balance);
 	update_imported_buttons();
 	
 	// check if new funds added on add page
@@ -544,8 +605,8 @@ function on_imported_balance(err, amt, utxos, tx) {
 }
 
 function on_unit() {
-	update_imported_balances();
-	update_new_mp_balances();
+	update_imported_balances(unlocked_mp_balance);
+	update_new_mp_balances(new_mp_balance);
 	if (page_manager.current() == "new_mp_add_page") on_new_mp_add_amt();
 	if (page_manager.current() == "unlocked_mp_add_page") on_unlocked_mp_add_amt();
 	if (page_manager.current() == "claim_address_page") on_claim_address_amt();
@@ -564,8 +625,8 @@ function on_unit() {
 /**
  * Updates all balances for the imported mp.
  */
-function update_imported_balances() {
-	var amt_str = online ? satoshis_to_unit_str(unlocked_mp_balance) : "unavailable";
+function update_imported_balances(amt_satoshis) {
+	var amt_str = online ? satoshis_to_unit_str(amt_satoshis) : "unavailable";
 	var color = online ? "green" : "red";
 	$("#unlocked_balance").css("color", color).text(amt_str);
 	$("#claim_mp_send_balance").css("color", color).text(amt_str);
@@ -582,8 +643,8 @@ function update_imported_balances() {
 	}
 }
 
-function update_new_mp_balances() {
-	var amt_str = online ? satoshis_to_unit_str(new_mp_balance) : "unavailable";
+function update_new_mp_balances(amt_satoshis) {
+	var amt_str = online ? satoshis_to_unit_str(amt_satoshis) : "unavailable";
 	var color = online ? "green" : "red";
 	$("#new_mp_add_done_balance").css("color", color).text(amt_str);
 }
@@ -655,7 +716,7 @@ function on_claim_mp_set_password() {
 		var claim_mp_private_key = bitcore.PrivateKey();
 		claim_mp_public_address = claim_mp_private_key.toAddress().toString();
 		if ($("#claim_mp_bip38_checkbox").is(":checked")) {
-			if (confirm("Your browser may freeze for a moment during encryption.  Continue?")) {
+			if (confirm("Your browser may freeze for a moment during BIP38 encryption.  Continue?")) {
 				$("#claim_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
 				setTimeout(function() {	// hack to show encrypting message
 					claim_mp = {};
@@ -684,6 +745,12 @@ function on_claim_mp_set_password() {
  * Sets the password and generates a new mp.
  */
 function on_new_mp_set_password() {
+	// TODO: make this completely transparent
+	if (bitcore == null || insight == null) {
+		alert("Sorry, some dependencies are not loaded.  Please wait a moment and try again.");
+		return;
+	}
+	
 	var password1 = $("#new_mp_password1");
 	var password2 = $("#new_mp_password2");
 	var valid = validate_passwords(password1.val(), password2.val());
@@ -698,10 +765,10 @@ function on_new_mp_set_password() {
 		}
 		
 		// generate private key for new mp
-		var new_mp_private_key = bitcore.PrivateKey();
+		new_mp_private_key = bitcore.PrivateKey();
 		new_mp_public_address = new_mp_private_key.toAddress().toString();
 		if ($("#new_mp_bip38_checkbox").is(":checked")) {
-			if (confirm("Your browser may freeze for a moment during encryption.  Continue?")) {
+			if (confirm("Your browser may freeze for a moment during BIP38 encryption.  Continue?")) {
 				$("#new_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
 				setTimeout(function() {	// hack to show encrypting message
 					new_mp = {};
@@ -733,16 +800,17 @@ function on_new_mp_set_password() {
  */
 function on_claim_mp_download() {
 	if (isIE) {
-		window.navigator.msSaveBlob(new Blob([JSON.stringify(claim_mp)]), "money.bit");
+		window.navigator.msSaveBlob(new Blob([get_mp_text(claim_mp)]), get_mp_name());
 	} else {
 		var a = window.document.createElement('a');
-		a.href = window.URL.createObjectURL(new Blob([JSON.stringify(claim_mp)], {type: 'application/json'}));
-		a.download = 'money.bit';
+		a.href = window.URL.createObjectURL(new Blob([get_mp_text(claim_mp)], {type: 'text/plain'}));
+		a.download = get_mp_name();
 		a.target="_blank";
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
 	}
+	$("#claim_mp_download_confirm_button").show();
 }
 
 /**
@@ -750,16 +818,51 @@ function on_claim_mp_download() {
  */
 function on_new_mp_download() {
 	if (isIE) {
-		window.navigator.msSaveBlob(new Blob([JSON.stringify(new_mp)]), "money.bit");
+		window.navigator.msSaveBlob(new Blob([get_mp_text(new_mp)]), get_mp_name());
 	} else {
 		var a = window.document.createElement('a');
-		a.href = window.URL.createObjectURL(new Blob([JSON.stringify(new_mp)], {type: 'application/json'}));
-		a.download = 'money.bit';
+		a.href = window.URL.createObjectURL(new Blob([get_mp_text(new_mp)], {type: 'text/plain'}));
+		a.download = get_mp_name();
 		a.target="_blank";
 		document.body.appendChild(a);
 		a.click();
 		document.body.removeChild(a);
 	}
+	$("#new_mp_download_confirm_button").show();
+}
+
+function get_mp_text(mp) {
+	var date = new Date();
+	var year = date.getFullYear() - 2000;
+	var month = date.getMonth() + 1;
+	if (month < 10) month = "0" + month;
+	var day = date.getDate();
+	if (day < 10) day = "0" + day;
+	var str = "";
+	str += "Created on " + month + "/" + day + "/" + year + ".\n";
+	str += "This file is a money packet for bitcoins.\n";
+	str += "Funds can be claimed at https://moneypacket.org.\n";
+	str += "You can modify this file, but DO NOT modify the text below.\n\n";
+	str += "========== DO NOT MODIFY ==========\n";
+	str += JSON.stringify(mp) + "\n";
+	str += "===================================";
+	return str;
+}
+
+function get_mp_name() {
+	var date = new Date();
+	var year = date.getFullYear() - 2000;
+	var month = date.getMonth() + 1;
+	if (month < 10) month = "0" + month;
+	var day = date.getDate();
+	if (day < 10) day = "0" + day;
+	var hour = date.getHours();
+	if (hour < 10) hour = "0" + hour;
+	var min = date.getMinutes();
+	if (min < 10) min = "0" + min;
+	var sec = date.getSeconds();
+	if (sec < 10) sec = "0" + sec;
+	return "money_" + year + month + day + hour + min + ".bit";
 }
 
 /**
@@ -767,23 +870,15 @@ function on_new_mp_download() {
  * 
  * DUPLICATE BELOW
  */
-function on_claim_mp_download_confirm_checkbox() {
-	if ($("#claim_mp_download_confirm_checkbox").is(":checked")) {
-		page_manager.next("claim_mp_send_page");	
-	} else {
-		page_manager.clear_nexts();
-	}
+function on_claim_mp_download_confirm_button() {
+	page_manager.next("claim_mp_send_page");
 }
 
 /**
  * Confirms that the user has downloaded the new mp to proceed.
  */
-function on_new_mp_download_confirm_checkbox() {
-	if ($("#new_mp_download_confirm_checkbox").is(":checked")) {
-		page_manager.next("new_mp_add_page");	
-	} else {
-		page_manager.clear_nexts();
-	}
+function on_new_mp_download_confirm_button() {
+	page_manager.next("new_mp_add_page");
 }
 
 /**
@@ -791,23 +886,15 @@ function on_new_mp_download_confirm_checkbox() {
  * 
  * DUPLICATE BELOW
  */
-function on_claim_mp_copy_confirm_checkbox() {
-	if ($("#claim_mp_copy_confirm_checkbox").is(":checked")) {
-		page_manager.next("claim_mp_send_page");	
-	} else {
-		page_manager.clear_nexts();
-	}
+function on_claim_mp_copy_confirm_button() {
+	page_manager.next("claim_mp_send_page");
 }
 
 /**
  * Confirms that the user has copy/pasted the new mp to proceed.
  */
-function on_new_mp_copy_confirm_checkbox() {
-	if ($("#new_mp_copy_confirm_checkbox").is(":checked")) {
-		page_manager.next("new_mp_add_page");	
-	} else {
-		page_manager.clear_nexts();
-	}
+function on_new_mp_copy_confirm_button() {
+	page_manager.next("new_mp_add_page");
 }
 
 function on_claim_mp_send() {
@@ -960,7 +1047,7 @@ function on_claim_mp_send_full_balance() {
 	} else if (imported_network_info.err != null) {
 		send_msg.css("color", "red").text("Network error: " + imported_network_info.err);
 	} else {
-		var send_amt = get_max_send_amt();
+		var send_amt = get_max_claim_amt();
 		var balance = imported_network_info.amt;
 		var tx = imported_network_info.tx;
 		var tx_fee = tx.getFee();
@@ -1000,7 +1087,7 @@ function on_claim_address_full_balance() {
 		send_msg.css("color", "red").text("Network error: " + imported_network_info.err);
 	} else {
 		var send_address = $("#claim_address").val();
-		var send_amt = get_max_send_amt();
+		var send_amt = get_max_claim_amt();
 		var balance = imported_network_info.amt;
 		var tx = imported_network_info.tx;
 		var tx_fee = tx.getFee();
@@ -1036,7 +1123,7 @@ function on_claim_address_full_balance() {
 	}
 }
 
-function get_max_send_amt() {
+function get_max_claim_amt() {
 	return Math.max(0, imported_network_info.amt - imported_network_info.tx.getFee());
 }
 
@@ -1100,6 +1187,7 @@ function on_unlocked_mp_add_amt() {
 		
 		// incorporate into QR code
 		$("#unlocked_mp_qrcode").empty();
+		$("#unlocked_mp_qrcode").attr("href", "bitcoin:" + imported_public_address + "?amount=" + amt_num);
 		new QRCode("unlocked_mp_qrcode", {
 			text:"bitcoin:" + imported_public_address + "?amount=" + amt_num,
 			width:125,
@@ -1116,8 +1204,9 @@ function on_unlocked_mp_add_amt() {
 		
 		// remove from QR code
 		$("#unlocked_mp_qrcode").empty();
+		$("#unlocked_mp_qrcode").attr("href", "bitcoin:" + imported_public_address);
 		new QRCode("unlocked_mp_qrcode", {
-			text:imported_public_address,
+			text:"bitcoin:" + imported_public_address,
 			width:125,
 			height:125
 		});
@@ -1128,7 +1217,6 @@ function on_unlocked_mp_add_amt() {
  * Handles when user types amount into new mp add funds page.
  */
 function on_new_mp_add_amt() {
-	// debug: page_manager.next("new_mp_add_done_page");
 	var amt = $("#new_mp_add_amt").val();
 	var msg = validate_positive_amt(amt);
 	var error = $("#new_mp_add_amt_error");
@@ -1139,6 +1227,7 @@ function on_new_mp_add_amt() {
 		
 		// redraw into QR code
 		$("#new_mp_qrcode").empty();
+		$("#new_mp_qrcode").attr("href", "bitcoin:" + new_mp_public_address + "?amount=" + amt_num);
 		new QRCode("new_mp_qrcode", {
 			text:"bitcoin:" + new_mp_public_address + "?amount=" + amt_num,
 			width:125,
@@ -1154,8 +1243,9 @@ function on_new_mp_add_amt() {
 		
 		// redraw from QR code
 		$("#new_mp_qrcode").empty();
+		$("#new_mp_qrcode").attr("href", "bitcoin:" + new_mp_public_address);
 		new QRCode("new_mp_qrcode", {
-			text:new_mp_public_address,
+			text:"bitcoin:" + new_mp_public_address,
 			width:125,
 			height:125
 		});
@@ -1177,10 +1267,41 @@ function on_new_mp_balance(err, amt, utxos, tx) {
 	
 	// if balances are the same, done
 	if (new_mp_balance == amt) return;
-	new_mp_balance = amt;
 	
-	// update balance fields
-	update_new_mp_balances();
+	// determine if funds were received
+	var received = amt > new_mp_balance ? true : false;
+	
+	// update new balances
+	new_mp_balance = amt;
+	update_new_mp_balances(new_mp_balance);
+	
+	// process received funds
+	if (received) on_new_mp_funds_received();
+}
+
+function on_new_mp_funds_received() {
+	// process tip if selected
+	if (tip_selection == "tip1") {
+		var tx = new_mp_network_info.tx;
+		var tx_fee = tx.getFee();
+		var tip_amt = Math.min(unit_to_satoshis(DEFAULT_TIP, DEFAULT_TIP_UNIT), new_mp_balance);
+		if (tip_amt - tx_fee > 0) {
+			new_mp_add_done_tip = true;
+			update_new_mp_balances(new_mp_balance - tip_amt);
+			tx.to(TIP_ADDRESS, tip_amt - tx_fee).sign(new_mp_private_key);
+			try {
+				insight.broadcast(tx, function(err, txid) {
+					if (err) {
+						throw err;
+					}
+				});
+			} catch (err) {
+				console.log("Error processing tip: " + err);
+			}
+		}
+	} else {
+		new_mp_add_done_tip = false;
+	}
 	
 	// advance page if new funds received
 	if (page_manager.current() == "new_mp_add_page") {
@@ -1210,6 +1331,12 @@ function unit_to_satoshis(amt, decimals) {
 	return decimals == null ? converted : parseFloat(converted.toFixed(decimals));
 }
 
+// TODO: this shouldn't be necessary, unit_to_satashis should take code as parameter
+function unit_to_satoshis_custom(amt, code, decimals) {
+	var converted = amt / get_exchange_rate(code) * 100000000;				// TODO: use number library
+	return decimals == null ? converted : parseFloat(converted.toFixed(decimals));
+}
+
 function get_unit_code() {
 	return $("#preferred_unit_select :selected").val();
 }
@@ -1229,15 +1356,15 @@ function set_online(is_online) {
 	if (online) {
 		update_exchange_rates();
 		$("#offline_div").hide();
-		$("#new_mp_add_waiting").text("Waiting for funds...");
-		$("#unlocked_mp_add_waiting").text("Waiting for funds...");
+		$("#new_mp_add_waiting").css("color","green").text("Waiting for funds...");
+		$("#unlocked_mp_add_waiting").css("color","green").text("Waiting for funds...");
 	} else {
 		$("#offline_div").show();
-		$("#new_mp_add_waiting").text("Cannot get balance while offline");
-		$("#unlocked_mp_add_waiting").text("Cannot get balance while offline");
+		$("#new_mp_add_waiting").css("color","black").text("Cannot detect funds while offline");
+		$("#unlocked_mp_add_waiting").css("color","black").text("Cannot detect funds while offline");
 	}
-	update_imported_balances();
-	update_new_mp_balances();
+	update_imported_balances(unlocked_mp_balance);
+	update_new_mp_balances(new_mp_balance);
 }
 
 function update_imported_buttons() {
@@ -1260,6 +1387,12 @@ function on_claim_mp_advanced_link() {
 	var displayed = $("#claim_mp_advanced_div").css("display") != "none"
 	$("#claim_mp_advanced_link").text(displayed ? "\u25b8 Advanced" : "\u25be Advanced");
 	displayed ? $("#claim_mp_advanced_div").hide() : $("#claim_mp_advanced_div").show();
+}
+
+function on_tip(id) {
+	$(".tip_link").removeClass("active");
+	$("#" + id).addClass("active");
+	tip_selection = id;
 }
 
 // ------------------------------- UTILITIES ----------------------------
