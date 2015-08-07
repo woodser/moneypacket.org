@@ -9,6 +9,7 @@
  * fireworks for tips
  * password requirements, especially with bip38
  * modifying textarea causes page to advance, only initial paste
+ * play with URLs, e.g. add URL to file then one click claim
  * 
  * LOW:
  * offline mode isn't reliably detected
