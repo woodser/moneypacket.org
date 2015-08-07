@@ -4,14 +4,17 @@
  * mobile
  * hd
  * password recovery service
- * faq
  * allow funds to be viewable
  * fireworks for tips
  * password requirements, especially with bip38
  * modifying textarea causes page to advance, only initial paste
  * play with URLs, e.g. add URL to file then one click claim
+ * FAQ and/or video
+ * link to where you can spend bitcoins on success screens
  * 
  * LOW:
+ * super streamlined claim option?
+ * make a giant green claim button to reinforce the idea that sender has access?
  * offline mode isn't reliably detected
  * keyboard navigation through most of it?
  * rather than positive amt, positive amt above and beyond dust
