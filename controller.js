@@ -11,6 +11,7 @@
  * play with URLs, e.g. add URL to file then one click claim
  * FAQ and/or video
  * link to where you can spend bitcoins on success screens
+ * breadcrumb trail?
  * 
  * LOW:
  * super streamlined claim option?
