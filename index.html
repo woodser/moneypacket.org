@@ -40,7 +40,7 @@
 					<!-- Home page -->
 					<div id="home_page" class="page">
 						<div>
-							<p>Money packets are the best way to send bitcoins over email or Dropbox.  No account necessary.</p>
+							<p>Money packets are the best way to send bitcoins over email or Dropbox.&nbsp;&nbsp;No account necessary.</p>
 							<p>A money packet is a shareable file which contains bitcoins, like a digital envelope for money.</p>
 							<p>This website lets you create money packets and claim their funds.</p>
 							<div>
@@ -124,7 +124,7 @@
 							<div class="button" id="claim_mp_download_button">Download</div>
 							<p>&nbsp;</p>
 							<div class="link_container">
-								<div class="nav_link" id="claim_mp_download_confirm_button">Click here to transfer funds after your money packet is saved<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="claim_mp_download_confirm_button">After your money packet is saved, click here to transfer funds<img class="link_arrow" src="img/arrow.png"></div>
 								<div class="nav_link" id="claim_mp_download_copy_link">I'd rather copy and paste the file contents instead<img class="link_arrow" src="img/arrow.png"></div>
 							</div>						
 						</div>
@@ -135,7 +135,7 @@
 							<p>Copy and paste this text into a file on your computer and <span style="color:red"><b>don't lose it.</b></span></p>
 							<p><textarea id="claim_mp_copy_textarea" readonly></textarea></p>
 							<div class="link_container">
-								<div class="nav_link" id="claim_mp_copy_confirm_button">Click here to transfer funds after your money packet is saved<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="claim_mp_copy_confirm_button">After your money packet is saved, click here to transfer funds<img class="link_arrow" src="img/arrow.png"></div>
 							</div>
 						</div>
 					</div>
@@ -191,8 +191,8 @@
 					<!-- Add funds to existing money packet -->
 					<div id="unlocked_mp_add_page" class="page" style="display:none;">
 						<div>
-							<p>This is your money packet's receive address.&nbsp;&nbsp;Send funds here to load your money packet.</p>
-							<p>Amount:&nbsp;<span id="unlocked_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="unlocked_mp_add_amt">&nbsp;<span id="unlocked_mp_add_code"></span>&nbsp;<span id="unlocked_mp_add_amt_error"></span></p>
+							<p>Amount to send:&nbsp;<span id="unlocked_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="unlocked_mp_add_amt">&nbsp;<span id="unlocked_mp_add_code"></span>&nbsp;<span id="unlocked_mp_add_amt_error"></span></p>
+							<p>This is your money packet's receive address.&nbsp;&nbsp;Send bitcoins to this address to load funds.</p>
 							<p id="unlocked_mp_add_waiting" style="text-align:center;color:green;">Waiting for funds...</p>
 							<div style="width:100%;text-align:center"><a id="unlocked_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></a></div>
 							<div id="unlocked_mp_qrcode_address" style="text-align:center;"></div>
@@ -231,7 +231,7 @@
 							<div class="button" id="new_mp_download_button">Download</div>
 							<p>&nbsp;</p>
 							<div class="link_container">
-								<div class="nav_link" id="new_mp_download_confirm_button">Click here to add funds after your money packet is saved<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="new_mp_download_confirm_button">After your money packet is saved, click here to add funds<img class="link_arrow" src="img/arrow.png"></div>
 								<div class="nav_link" id="new_mp_download_copy_link">I'd rather copy and paste the file contents instead<img class="link_arrow" src="img/arrow.png"></div>
 							</div>
 						</div>
@@ -242,22 +242,22 @@
 							<p>Copy and paste this text into a file on your computer and <span style="color:red"><b>don't lose it.</b></span></p>
 							<p><textarea id="new_mp_copy_textarea" readonly></textarea></p>
 							<div class="link_container">
-								<div class="nav_link" id="new_mp_copy_confirm_button">Click here to add funds after your money packet is saved<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="new_mp_copy_confirm_button">After your money packet is saved, click here to add funds<img class="link_arrow" src="img/arrow.png"></div>
 							</div>
 						</div>
 					</div>
 					<div id="new_mp_add_page" class="page" style="display:none;">
 						<div>
-							<p>This is your money packet's receive address.&nbsp;&nbsp;Send funds here to load your money packet.</p>
-							<p>Amount:&nbsp;<span id="new_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="new_mp_add_amt">&nbsp;<span id="new_mp_add_code"></span>&nbsp;<span id="new_mp_add_amt_error"></span></p>
+							<p>Amount to send:&nbsp;<span id="new_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="new_mp_add_amt">&nbsp;<span id="new_mp_add_code"></span>&nbsp;<span id="new_mp_add_amt_error"></span></p>
+							<p>This is your money packet's receive address.&nbsp;&nbsp;Send bitcoins to this address to load funds.</p>
 							<p id="new_mp_add_waiting" style="text-align:center;color:green">Waiting for funds...</p>
 							<div style="width:100%;text-align:center"><a id="new_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></a></div>
 							<div id="new_mp_qrcode_address" style="text-align:center;"></div>
 							<div id="new_mp_add_btc_conversion" style="text-align:center;">&nbsp;</div>
-							<p>Tip $1 for this service?  Tips are deducted automatically when funds are received.</p>
+							<p>Deduct $1 from the amount you send to tip this service?</p>
 							<ul class="tip_links" style="text-align:center;">
 								<li id="tip0" onclick="on_tip('tip0')" class="tip_link">No thanks</li>
-								<li id="tip1" onclick="on_tip('tip1')" class="tip_link">Sure!</li>
+								<li id="tip1" onclick="on_tip('tip1')" class="tip_link">Sure :)</li>
 							</ul>
 						</div>
 					</div>

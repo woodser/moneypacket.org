@@ -840,8 +840,8 @@ function get_mp_text(mp) {
 	var day = date.getDate();
 	if (day < 10) day = "0" + day;
 	var str = "";
-	str += "Created on " + month + "/" + day + "/" + year + ".\n";
-	str += "This file is a money packet for bitcoins.\n";
+	//str += "Created on " + month + "/" + day + "/" + year + ".\n";
+	str += "This is a money packet envelope for bitcoins.\n";
 	str += "Funds can be claimed at https://moneypacket.org.\n";
 	str += "You can modify this file, but DO NOT modify the text below.\n\n";
 	str += "========== DO NOT MODIFY ==========\n";
@@ -863,7 +863,7 @@ function get_mp_name() {
 	if (min < 10) min = "0" + min;
 	var sec = date.getSeconds();
 	if (sec < 10) sec = "0" + sec;
-	return "money_" + year + month + day + hour + min + ".bit";
+	return "money_" + year + month + day + hour + min + ".txt";
 }
 
 /**
