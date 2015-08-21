@@ -1,5 +1,6 @@
 /**
  * HIGH
+ * bugs in the rendering of total with mBtc and bits
  * collapse flows, create new money packet rolls into transactions
  * 
  * MEDIUM:
@@ -1357,9 +1358,9 @@ function satoshis_to_unit_label(amt, decimals) {
 
 function satoshis_to_unit_str(amt, decimals) {
 	if (decimals == null) decimals = 2;
-	if (get_unit_code() == "BTC") return satoshis_to_unit(amt) + "";
-	if (get_unit_code() == "mBTC") return satoshis_to_unit(amt) + "";
-	if (get_unit_code() == "bits") return satoshis_to_unit(amt).toFixed(0);
+	if (get_unit_code() == "BTC") return parseFloat(satoshis_to_unit(amt).toFixed(8)) + "";
+	if (get_unit_code() == "mBTC") return parseFloat(satoshis_to_unit(amt).toFixed(8)) + "";
+	if (get_unit_code() == "bits") return parseFloat(satoshis_to_unit(amt).toFixed(8)) + "";
 	return satoshis_to_unit(amt).toFixed(decimals);
 }
 
