@@ -1,5 +1,12 @@
 /**
+ * HIGH
+ * - mBTC
+ * - remove case requirements
+ * - change tip to input
+ * cross browser testing
+ * 
  * MEDIUM:
+ * zero fee transaction
  * gpg
  * mobile
  * hd
@@ -65,7 +72,6 @@ var new_mp_add_done_tip;
 var exchange_rates = null;
 var online = true;
 var bip38;
-var tip_selection;
 
 // constants
 var NETWORK_REFRESH_RATE = 1000;
@@ -74,8 +80,8 @@ var TIP_ADDRESS = "1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo";
 var EDGE_WIDTH = 150;
 var PREFERRED_UNIT_DEFAULT = "USD";
 var DEFAULT_ITER = 10000;
-var DEFAULT_TIP = 1;
-var DEFAULT_TIP_UNIT = "USD";
+var DEBUG = false;
+var DEBUG_TIP_ADDRESS = "3CRkaWEDwxy3MUSkzHcqfT5GtyqoDBWydQ";
 
 // IE workaround
 var isIE = /*@cc_on!@*/false || !!document.documentMode;
@@ -108,6 +114,7 @@ $(document).ready(function() {
 	$("#preferred_unit_select").change(on_unit);
 	$("#offline_div").hide();
 	bip38 = new Bip38();
+	on_unit();
 	
 	// home page
 	$("#home_import_link").click(function() { page_manager.next("import_upload_page"); });
@@ -160,6 +167,7 @@ $(document).ready(function() {
 	$("#new_mp_download_confirm_button").click(on_new_mp_download_confirm_button);
 	$("#new_mp_copy_confirm_button").click(on_new_mp_copy_confirm_button);
 	$("#new_mp_add_amt").on("input", function() { on_new_mp_add_amt(); });
+	$("#new_mp_tip_amt").on("input", function() { on_new_mp_tip_amt(); });
 	$("#new_mp_add_home_link").click(function() { page_manager.move("home_page"); });
 });
 
@@ -280,7 +288,7 @@ function PageManager(start_id) {
 			$("#unlocked_mp_qrcode_address").text("");
 			$("#unlocked_mp_add_amt").val("");
 			$("#unlocked_mp_add_amt_error").text("");
-			update_unlocked_mp_unit_labels();
+			update_unit_labels();
 			$("#unlocked_mp_add_btc_conversion").html("&nbsp;");
 			
 			// draw qr code
@@ -314,7 +322,7 @@ function PageManager(start_id) {
 			$("#claim_mp_send_amt").val("");
 			$("#claim_mp_send_msg").text("");
 			$("#claim_mp_send_amt_error").text("");
-			update_claim_mp_send_unit_labels();
+			update_unit_labels();
 			update_claim_mp_send_button();
 			break;
 		case "claim_address_page":
@@ -325,7 +333,7 @@ function PageManager(start_id) {
 			$("#claim_address_send_msg").text("");
 			clear_canvas("claim_address_checkmark");
 			$("#claim_address_full_balance").attr("disabled", "disabled");
-			update_claim_address_unit_labels();
+			update_unit_labels();
 			update_claim_address_send_button();
 			break;
 		case "new_mp_password_page":
@@ -349,14 +357,13 @@ function PageManager(start_id) {
 			$("#new_mp_qrcode").empty();
 			$("#new_mp_qrcode_address").text("");
 			$("#new_mp_add_amt").val("");
+			$("#new_mp_tip_amt").val("");
 			$("#new_mp_add_amt_error").text("");
-			update_claim_address_unit_labels();
+			$("#new_mp_tip_amt_error").text("");
+			update_unit_labels();
 			$("#new_mp_add_btc_conversion").html("&nbsp;");
-			
-			// reset tip selection
-			$(".tip_link").removeClass("active");
-			$("#tip0").addClass("active");
-			tip_selection = "tip0";
+			$("#new_mp_total").hide();
+			$("#new_mp_total_msg").css("font-style", "italic").text("").show();
 			
 			// draw qr code
 			$("#new_mp_qrcode").empty();
@@ -616,11 +623,8 @@ function on_unit() {
 	if (page_manager.current() == "unlocked_mp_add_page") on_unlocked_mp_add_amt();
 	if (page_manager.current() == "claim_address_page") on_claim_address_amt();
 	if (page_manager.current() == "claim_mp_send_page") on_claim_mp_send_amt();
-	update_unlocked_mp_unit_labels();
-	update_new_mp_unit_labels();
-	update_claim_address_unit_labels();
-	update_claim_mp_send_unit_labels();
-	if (get_unit_code() != "BTC" && get_unit_code() != "bits") {
+	update_unit_labels();
+	if (get_unit_code() != "BTC" && get_unit_code() != "mBTC" && get_unit_code() != "bits") {
 		$("#fluctuate").show();
 	} else {
 		$("#fluctuate").hide();
@@ -631,7 +635,7 @@ function on_unit() {
  * Updates all balances for the imported mp.
  */
 function update_imported_balances(amt_satoshis) {
-	var amt_str = online ? satoshis_to_unit_str(amt_satoshis) : "unavailable";
+	var amt_str = online ? satoshis_to_unit_label(amt_satoshis) : "unavailable";
 	var color = online ? "green" : "red";
 	$("#unlocked_balance").css("color", color).text(amt_str);
 	$("#claim_mp_send_balance").css("color", color).text(amt_str);
@@ -640,8 +644,8 @@ function update_imported_balances(amt_satoshis) {
 	$("#claim_address_done_balance").css("color", color).text(amt_str);
 	$("#claim_mp_done_old_balance").css("color", color).text(amt_str);
 	if (imported_network_info != null && imported_network_info.tx != null) {
-		$("#claim_address_fee").css("color","green").text(satoshis_to_unit_str(imported_network_info.tx.getFee(), 2));
-		$("#claim_mp_send_fee").css("color","green").text(satoshis_to_unit_str(imported_network_info.tx.getFee(), 2));
+		$("#claim_address_fee").css("color","green").text(satoshis_to_unit_label(imported_network_info.tx.getFee(), 2));
+		$("#claim_mp_send_fee").css("color","green").text(satoshis_to_unit_label(imported_network_info.tx.getFee(), 2));
 	} else {
 		$("#claim_address_fee").css("color","red").text("unavailable");
 		$("#claim_mp_send_fee").css("color","red").text("unavailable");
@@ -649,52 +653,27 @@ function update_imported_balances(amt_satoshis) {
 }
 
 function update_new_mp_balances(amt_satoshis) {
-	var amt_str = online ? satoshis_to_unit_str(amt_satoshis) : "unavailable";
+	var amt_str = online ? satoshis_to_unit_label(amt_satoshis) : "unavailable";
 	var color = online ? "green" : "red";
 	$("#new_mp_add_done_balance").css("color", color).text(amt_str);
 }
 
-function update_unlocked_mp_unit_labels() {
+function update_unit_labels() {
 	var symbol = get_currency_symbol(get_unit_code());
 	if (symbol != null) {
-		$("#unlocked_mp_add_symbol").text(symbol);
-		$("#unlocked_mp_add_code").text("");
+		$(".unit_symbol").each(function() {
+			$(this).text(symbol);
+		});
+		$(".unit_code").each(function() {
+			$(this).text("");
+		});
 	} else {
-		$("#unlocked_mp_add_symbol").text("");
-		$("#unlocked_mp_add_code").text(get_unit_code());
-	}
-}
-
-function update_new_mp_unit_labels() {
-	var symbol = get_currency_symbol(get_unit_code());
-	if (symbol != null) {
-		$("#new_mp_add_symbol").text(symbol);
-		$("#new_mp_add_code").text("");
-	} else {
-		$("#new_mp_add_symbol").text("");
-		$("#new_mp_add_code").text(get_unit_code());
-	}
-}
-
-function update_claim_address_unit_labels() {
-	var symbol = get_currency_symbol(get_unit_code());
-	if (symbol != null) {
-		$("#claim_address_symbol").text(symbol);
-		$("#claim_address_code").text("");
-	} else {
-		$("#claim_address_symbol").text("");
-		$("#claim_address_code").text(get_unit_code());
-	}
-}
-
-function update_claim_mp_send_unit_labels() {
-	var symbol = get_currency_symbol(get_unit_code());
-	if (symbol != null) {
-		$("#claim_mp_send_symbol").text(symbol);
-		$("#claim_mp_send_code").text("");
-	} else {
-		$("#claim_mp_send_symbol").text("");
-		$("#claim_mp_send_code").text(get_unit_code());
+		$(".unit_symbol").each(function() {
+			$(this).text("");
+		});
+		$(".unit_code").each(function() {
+			$(this).text(get_unit_code());
+		});
 	}
 }
 
@@ -918,7 +897,7 @@ function on_claim_mp_send() {
 			$("#claim_mp_send_amt_error").css("color","red").text(msg);
 		} else {
 			var send_amt = parseFloat(send_amt_str);
-			if (!confirm("Transfer " + satoshis_to_unit_str(unit_to_satoshis(send_amt)) + " to your new money packet?")) return;
+			if (!confirm("Transfer " + satoshis_to_unit_label(unit_to_satoshis(send_amt)) + " to your new money packet?")) return;
 			tx.to(claim_mp_public_address, unit_to_satoshis(send_amt, 0)).sign(imported_private_key);
 			try {
 				insight.broadcast(tx, function(err, txid) {
@@ -927,7 +906,7 @@ function on_claim_mp_send() {
 			    	} else {
 			    		send_msg.text("");
 			    		$("#claim_mp_done_old_balance").css("color", "black").text("..");
-			    		$("#claim_mp_done_transfer_amt").css("color", "green").text(satoshis_to_unit_str(unit_to_satoshis(send_amt)));
+			    		$("#claim_mp_done_transfer_amt").css("color", "green").text(satoshis_to_unit_label(unit_to_satoshis(send_amt)));
 			    		page_manager.next("claim_mp_done_page");
 			    	}
 			    });
@@ -1068,7 +1047,7 @@ function on_claim_mp_send_full_balance() {
 			    	} else {
 			    		send_msg.text("");
 			    		$("#claim_mp_done_old_balance").css("color", "black").text("..");
-			    		$("#claim_mp_done_transfer_amt").css("color", "green").text(satoshis_to_unit_str(send_amt));
+			    		$("#claim_mp_done_transfer_amt").css("color", "green").text(satoshis_to_unit_label(send_amt));
 			    		page_manager.next("claim_mp_done_page");
 			    	}
 			    });
@@ -1109,7 +1088,7 @@ function on_claim_address_full_balance() {
 			    		throw err;
 			    	} else {
 			    		send_msg.text("");
-			    		$("#claim_address_done_transfer_amt").css("color", "green").text(satoshis_to_unit_str(send_amt));
+			    		$("#claim_address_done_transfer_amt").css("color", "green").text(satoshis_to_unit_label(send_amt));
 			    		$("#claim_address_done_address").text(send_address);
 			    		$("#claim_address_done_balance").css("color","black").text("..");
 			    		page_manager.next("claim_address_done_page");
@@ -1144,11 +1123,17 @@ function on_claim_address_send() {
 		var balance = imported_network_info.amt;
 		var tx = imported_network_info.tx;
 		var tx_fee = tx.getFee();
+		
+		// TODO: zero fee transactions
+//		tx.fee(0);
+//		tx_fee = 0;
+//		console.log(tx.serialize(true));
+		
 		var address_msg = validate_address(send_address);
 		var amt_msg = validate_transfer_amt(send_amt_str, balance, tx_fee);
 		if (address_msg == "Valid" && amt_msg == "Valid") {
 			var send_amt = parseFloat(send_amt_str);
-			if (!confirm("Transfer " + satoshis_to_unit_str(unit_to_satoshis(send_amt)) + " to " + send_address + "?")) return;
+			if (!confirm("Transfer " + satoshis_to_unit_label(unit_to_satoshis(send_amt)) + " to " + send_address + "?")) return;
 			tx.to(send_address, unit_to_satoshis(send_amt, 0)).sign(imported_private_key);
 			try {
 				insight.broadcast(tx, function(err, txid) {
@@ -1156,7 +1141,7 @@ function on_claim_address_send() {
 			    		throw err;
 			    	} else {
 			    		send_msg.text("");
-			    		$("#claim_address_done_transfer_amt").css("color", "green").text(satoshis_to_unit_str(unit_to_satoshis(send_amt)));
+			    		$("#claim_address_done_transfer_amt").css("color", "green").text(satoshis_to_unit_label(unit_to_satoshis(send_amt)));
 			    		$("#claim_address_done_address").text(send_address);
 			    		$("#claim_address_done_balance").css("color","black").text("..");
 			    		page_manager.next("claim_address_done_page");
@@ -1223,30 +1208,71 @@ function on_unlocked_mp_add_amt() {
  */
 function on_new_mp_add_amt() {
 	var amt = $("#new_mp_add_amt").val();
-	var msg = validate_positive_amt(amt);
+	var msg = validate_non_negative(amt);
 	var error = $("#new_mp_add_amt_error");
 	if (msg == "Valid") {
 		error.text("");
-		var amt_num = satoshis_to_btc(unit_to_satoshis(parseFloat(amt)));
-		$("#new_mp_add_btc_conversion").text(amt_num + " BTC");
-		
-		// redraw into QR code
-		$("#new_mp_qrcode").empty();
-		$("#new_mp_qrcode").attr("href", "bitcoin:" + new_mp_public_address + "?amount=" + amt_num);
-		new QRCode("new_mp_qrcode", {
-			text:"bitcoin:" + new_mp_public_address + "?amount=" + amt_num,
-			width:125,
-			height:125
-		});
 	} else {
-		if (amt != "." && msg == "Amount is not a number") {
+		if (amt != "." && (msg == "Amount is not a number" || msg == "Amount is negative")) {
 			error.css("color", "red").text(msg);
 		} else {
 			error.text("");
 		}
-		$("#new_mp_add_btc_conversion").html("&nbsp;");
+	}
+	update_new_mp_total_amt();
+}
+
+/**
+ * Handles when a user types into the tip box for a new mp.
+ */
+function on_new_mp_tip_amt() {
+	var amt = $("#new_mp_tip_amt").val();
+	var msg = validate_non_negative(amt);
+	var error = $("#new_mp_tip_amt_error");
+	if (msg == "Valid" || msg == "Amount is blank" || amt == ".") {
+		error.css("color", "black").text("");
+	} else {
+		error.css("color", "red").text(msg);
+	}
+	update_new_mp_total_amt();
+}
+
+/**
+ * Updates the totals on the new mp load screen.
+ */
+function update_new_mp_total_amt() {
+	var load_val = $("#new_mp_add_amt").val();
+	var load_msg = validate_non_negative(load_val);
+	if (load_msg == "Valid") {
+		var total_sats = unit_to_satoshis(parseFloat(load_val));
+		var tip_val = $("#new_mp_tip_amt").val();
+		var tip_msg = validate_non_negative(tip_val);
+		if (tip_msg == "Valid") total_sats += unit_to_satoshis(parseFloat(tip_val));
+		var total_btc = satoshis_to_btc(total_sats);
 		
-		// redraw from QR code
+		// update total row
+		$("#new_mp_total").show();
+		$("#new_mp_total_amt").text(satoshis_to_unit_str(total_sats, 2));
+		$("#new_mp_total_msg").hide();
+		
+		// update qr code
+		$("#new_mp_qrcode").empty();
+		$("#new_mp_qrcode").attr("href", "bitcoin:" + new_mp_public_address + "?amount=" + total_btc);
+		new QRCode("new_mp_qrcode", {
+			text:"bitcoin:" + new_mp_public_address + "?amount=" + total_btc,
+			width:125,
+			height:125
+		});
+		
+		// update btc conversion
+		$("#new_mp_add_btc_conversion").text(total_btc + " BTC");
+		
+	} else {
+		// update total row
+		$("#new_mp_total").hide();
+		$("#new_mp_total_msg").css("font-style", "italic").text("").show();
+		
+		// update qr code
 		$("#new_mp_qrcode").empty();
 		$("#new_mp_qrcode").attr("href", "bitcoin:" + new_mp_public_address);
 		new QRCode("new_mp_qrcode", {
@@ -1254,6 +1280,9 @@ function on_new_mp_add_amt() {
 			width:125,
 			height:125
 		});
+		
+		// update btc conversion
+		$("#new_mp_add_btc_conversion").html("&nbsp;");
 	}
 }
 
@@ -1285,15 +1314,17 @@ function on_new_mp_balance(err, amt, utxos, tx) {
 }
 
 function on_new_mp_funds_received() {
-	// process tip if selected
-	if (tip_selection == "tip1") {
+	// process tip
+	var tip_val = $("#new_mp_tip_amt").val();
+	var msg = validate_positive_amt(tip_val);
+	if (msg == "Valid") {
 		var tx = new_mp_network_info.tx;
 		var tx_fee = tx.getFee();
-		var tip_amt = Math.min(unit_to_satoshis(DEFAULT_TIP, DEFAULT_TIP_UNIT), new_mp_balance);
+		var tip_amt = unit_to_satoshis(parseFloat(tip_val), 0);
 		if (tip_amt - tx_fee > 0) {
 			new_mp_add_done_tip = true;
 			update_new_mp_balances(new_mp_balance - tip_amt);
-			tx.to(TIP_ADDRESS, tip_amt - tx_fee).sign(new_mp_private_key);
+			tx.to(DEBUG ? DEBUG_TIP_ADDRESS : TIP_ADDRESS, tip_amt - tx_fee).sign(new_mp_private_key);
 			try {
 				insight.broadcast(tx, function(err, txid) {
 					if (err) {
@@ -1314,16 +1345,24 @@ function on_new_mp_funds_received() {
 	}
 }
 
-function satoshis_to_unit_str(amt, decimals) {
-	if (decimals == null) decimals = 2;
-	if (get_unit_code() == "BTC") return satoshis_to_unit(amt) + " BTC";
-	if (get_unit_code() == "bits") return satoshis_to_unit(amt).toFixed(0) + " bits";
+function satoshis_to_unit_label(amt, decimals) {
+	if (get_unit_code() == "BTC") return satoshis_to_unit_str(amt, decimals) + " BTC";
+	if (get_unit_code() == "mBTC") return satoshis_to_unit_str(amt, decimals) + " mBTC";
+	if (get_unit_code() == "bits") return satoshis_to_unit_str(amt, decimals) + " bits";
 	var symbol = get_currency_symbol(get_unit_code());
 	if (symbol != null) {
-		return symbol + satoshis_to_unit(amt).toFixed(decimals);
+		return symbol + satoshis_to_unit_str(amt, decimals);
 	} else {
-		return satoshis_to_unit(amt).toFixed(decimals) + " " + get_unit_code();
+		return satoshis_to_unit_str(amt, decimals) + " " + get_unit_code();
 	}
+}
+
+function satoshis_to_unit_str(amt, decimals) {
+	if (decimals == null) decimals = 2;
+	if (get_unit_code() == "BTC") return satoshis_to_unit(amt) + "";
+	if (get_unit_code() == "mBTC") return satoshis_to_unit(amt) + "";
+	if (get_unit_code() == "bits") return satoshis_to_unit(amt).toFixed(0);
+	return satoshis_to_unit(amt).toFixed(decimals);
 }
 
 function satoshis_to_unit(amt, decimals) {
@@ -1336,19 +1375,14 @@ function unit_to_satoshis(amt, decimals) {
 	return decimals == null ? converted : parseFloat(converted.toFixed(decimals));
 }
 
-// TODO: this shouldn't be necessary, unit_to_satashis should take code as parameter
-function unit_to_satoshis_custom(amt, code, decimals) {
-	var converted = amt / get_exchange_rate(code) * 100000000;				// TODO: use number library
-	return decimals == null ? converted : parseFloat(converted.toFixed(decimals));
-}
-
 function get_unit_code() {
 	return $("#preferred_unit_select :selected").val();
 }
 
 function get_exchange_rate(code) {
-	if (code == "bits") return 1000000.0;
 	if (code == "BTC") return 1.0;
+	if (code == "mBTC") return 1000.0;
+	if (code == "bits") return 1000000.0;
 	for (var i = 0; i < exchange_rates.length; i++) {
 		if (exchange_rates[i].code == code) return exchange_rates[i].rate;
 	}
@@ -1392,12 +1426,6 @@ function on_claim_mp_advanced_link() {
 	var displayed = $("#claim_mp_advanced_div").css("display") != "none"
 	$("#claim_mp_advanced_link").text(displayed ? "\u25b8 Advanced" : "\u25be Advanced");
 	displayed ? $("#claim_mp_advanced_div").hide() : $("#claim_mp_advanced_div").show();
-}
-
-function on_tip(id) {
-	$(".tip_link").removeClass("active");
-	$("#" + id).addClass("active");
-	tip_selection = id;
 }
 
 // ------------------------------- UTILITIES ----------------------------
@@ -1495,16 +1523,13 @@ function get_balance_utxos_tx(address, callback) {
  * Validates two passwords.
  */
 function validate_passwords(password1, password2) {
+	if (DEBUG) return "Valid";
 	if (password1 != password2) {
 		return "The passwords you entered do not match";
 	} else if (password1 == "") {	
 		return "The password cannot be blank";
 	} else if (password1.length < 6) {
-		return "The password must contain at least 6 characters";
-	} else if (!(/[a-z]/.test(password1))) {
-		return "The password must contain at least 1 lowercase character";
-	} else if (!(/[A-Z]/.test(password1))) {
-		return "The password must contain at least 1 uppercase character";
+		return "The password must be at least 6 characters";
 	} else {
 		return "Valid";
 	}
@@ -1547,6 +1572,17 @@ function validate_positive_amt(amt) {
 	if (!$.isNumeric(amt)) return "Amount is not a number";
 	var amt_num = parseFloat(amt);
 	if (amt_num <= 0) return "Amount must be positive";
+	return "Valid";
+}
+
+/**
+ * Validates a whole number.
+ */
+function validate_non_negative(amt) {
+	if (amt == "" || amt == ".") return "Amount is blank";
+	if (!$.isNumeric(amt)) return "Amount is not a number";
+	var amt_num = parseFloat(amt);
+	if (amt_num < 0) return "Amount is negative";
 	return "Valid";
 }
 

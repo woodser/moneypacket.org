@@ -108,13 +108,13 @@ img[src="img/btc_logo.png"] {
 	position:relative;
 	overflow:hidden;
 	width:810px;
-	height:475px;
+	height:510px;
 	border:solid;
 }
 
 #background_page {
 	background-image: url('img/envelope.png');
-	background-size:810px 475px;
+	background-size:810px 510px;
 	opacity:0.11;
 }
 
@@ -187,9 +187,16 @@ textarea {
 }
 
 input[type="text"] {
-	padding:8px;
-	width:100px;
+	padding:4px;
+	width:90px;
 	text-align:left;
+}
+
+.mock_input {
+	padding:4px;
+	width:93px;
+	text-align:left;
+	display:inline-block;
 }
 
 input[type="password"] {
@@ -242,6 +249,28 @@ label {
 	user-select: none;
 }
 
+.amt_container {
+	/** border:1px solid;
+	background-color:yellow; **/
+	display:block;
+	text-align:center;
+}
+
+.amt_row {
+	height:43px;
+	line-height:43px;
+	text-align:left;
+	margin-left:auto;
+	margin-right:auto;
+	width:475px;
+	/** white-space:nowrap; **/
+}
+
+.amt_right {
+	float:right;
+	clear:both;
+}
+
 .button {
 	text-align:center;
 }
@@ -282,42 +311,4 @@ div[disabled] img {
 .warning_img {
 	width:25px;
 	height:21.83px;
-}
-
-.tip_links {
-	list-style:none;
-	margin:0px;
-	padding:0px;
-}
-
-.tip_link {
-	display:inline-block;
-	text-align:center;
-	margin:0px;
-	padding:5px 10px 5px 10px;
-	width:100px;
-	border:thin solid;
-	
-	/* unselectable */
-	-webkit-touch-callout: none;
-	-webkit-user-select: none;
-	-khtml-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-.tip_link.active, .tip_link.active:hover {
-	background-color:#B0B0B0;
-	cursor:pointer;
-}
-
-.tip_link:hover {
-	background-color:#F0F0F0;
-	color:black;
-	cursor:pointer;
-}
-
-.tip_link:active {
-	background-color:#E0E0E0;
 }

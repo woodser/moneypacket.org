@@ -43,3 +43,10 @@ moneypacket.org-v0.23
 - Changed download confirmation from checkbox to button for consistency
 - Asynchronously load big dependencies for faster load times
 - Cosmetics and wording
+
+08/21/2015
+moneypacket.org-v0.24
+- Added mBTC as preferred unit option
+- Removed password case requirements; password must be at least 6 characters
+- Changed tip process to accept user input instead of yes/no
+- Cosmetics and wording

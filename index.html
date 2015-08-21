@@ -26,6 +26,7 @@
 				<div id="preferred_unit_div">
 					Preferred units: <select id="preferred_unit_select">
 						<option value="BTC">BTC&nbsp;&nbsp;&nbsp;&nbsp;</option>
+						<option value="mBTC">mBTC</option>
 						<option value="bits">bits</option>
 					</select>
 				</div>
@@ -108,7 +109,7 @@
 							<p>Lets create a new money packet and transfer funds from the original money packet.</p>
 							<p>Enter a password to protect the new money packet.</p>
 							<p>This password will be required to access funds later on so <span style="color:red"><b>don't lose it.</b></span></p>
-							<p>The password must contain at least 6 characters with 1 uppercase and 1 lowercase.</p>
+							<p>The password must be at least 6 characters.</p>
 							<p>Password: <input type="password" id="claim_mp_password1"></input>&nbsp;&nbsp;&nbsp;&nbsp;Confirm: <input type="password" id="claim_mp_password2"></input></p>
 							<p id="claim_mp_password_msg" style="color:red;"></p>
 							<div class="button" id="claim_mp_set_password_button">Create New Money Packet</div>
@@ -144,7 +145,7 @@
 							<p>We're ready to transfer funds from the original money packet to your new one!</p>
 							<p>How much would you like to transfer?</p>
 							<p>Available balance: <span id="claim_mp_send_balance"></span>&nbsp;&nbsp;|&nbsp;&nbsp;Bitcoin transaction fee: ~<span id="claim_mp_send_fee"></span></p>
-							<p><a href="#" id="claim_mp_send_full_balance">Transfer full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span id="claim_mp_send_symbol"></span>&nbsp;<input id="claim_mp_send_amt" type="text">&nbsp;<span id="claim_mp_send_code"></span>&nbsp;&nbsp;&nbsp;</p>
+							<p><a href="#" id="claim_mp_send_full_balance">Transfer full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span class="unit_symbol"></span>&nbsp;<input id="claim_mp_send_amt" type="text">&nbsp;<span class="unit_code"></span>&nbsp;&nbsp;&nbsp;</p>
 							<p><span id="claim_mp_send_amt_error"></span></p>
 							<div id="claim_mp_send_button" class="button">Transfer</div>
 							<p id="claim_mp_send_msg"></p>
@@ -172,7 +173,7 @@
 							<p>Don't have a bitcoin address?  I recommend installing <a target="_blank" href="https://copay.io/">Copay</a> which works on all devices.</p>
 							<p>Available balance: <span id="claim_address_balance"></span>&nbsp;&nbsp;|&nbsp;&nbsp;Bitcoin transaction fee: ~<span id="claim_address_fee"></span></p>
 							<p>Receiving bitcoin address: <input type="text" id="claim_address" spellcheck="false">&nbsp;<canvas id="claim_address_checkmark" style="width:30px;height:22px;display:none;vertical-alignment:middle;"></canvas><br><span id="claim_address_msg"></span></p>
-							<p>&nbsp;<a href="#" id="claim_address_full_balance">Transfer full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span id="claim_address_symbol"></span>&nbsp;<input type="text" id="claim_address_amt">&nbsp;<span id="claim_address_code"></span></p>
+							<p>&nbsp;<a href="#" id="claim_address_full_balance">Transfer full balance</a>&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;Send amount:&nbsp;<span class="unit_symbol"></span>&nbsp;<input type="text" id="claim_address_amt">&nbsp;<span class="unit_code"></span></p>
 							<p><span id="claim_address_amt_msg"></span></p>
 							<div class="button" id="claim_address_send_button">Transfer</div>
 							<p id="claim_address_send_msg"></p>
@@ -191,12 +192,12 @@
 					<!-- Add funds to existing money packet -->
 					<div id="unlocked_mp_add_page" class="page" style="display:none;">
 						<div>
-							<p>Amount to send:&nbsp;<span id="unlocked_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="unlocked_mp_add_amt">&nbsp;<span id="unlocked_mp_add_code"></span>&nbsp;<span id="unlocked_mp_add_amt_error"></span></p>
-							<p>This is your money packet's receive address.&nbsp;&nbsp;Send bitcoins to this address to load funds.</p>
-							<p id="unlocked_mp_add_waiting" style="text-align:center;color:green;">Waiting for funds...</p>
+							<p>Optionally enter an amount to load:&nbsp;<span class="unit_symbol"></span>&nbsp;<input placeholder="Optional" type="text" id="unlocked_mp_add_amt">&nbsp;<span class="unit_code"></span>&nbsp;<span id="unlocked_mp_add_amt_error"></span></p>
+							<p>Send bitcoins to this address to load your money packet at any time:</p>
 							<div style="width:100%;text-align:center"><a id="unlocked_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></a></div>
 							<div id="unlocked_mp_qrcode_address" style="text-align:center;"></div>
 							<div id="unlocked_mp_add_btc_conversion" style="text-align:center;">&nbsp;</div>
+							<p id="unlocked_mp_add_waiting" style="text-align:center;color:green;">Waiting for funds...</p>
 						</div>
 					</div>
 					<div id="unlocked_mp_add_done_page" class="page" style="display:none;">
@@ -215,7 +216,7 @@
 						<div>
 							<p>Enter a password to protect your money packet.</p>
 							<p>This password will be required to access funds later on so <b><span style="color:red">don't lose it.</span></b></p>
-							<p>The password must contain at least 6 characters with 1 uppercase and 1 lowercase.</p>
+							<p>The password must be at least 6 characters.</p>
 							<p>Password: <input type="password" id="new_mp_password1"></input>&nbsp;&nbsp;&nbsp;&nbsp;Confirm: <input type="password" id="new_mp_password2"></input></p>
 							<p id="new_mp_password_msg" style="color:red;"></p>
 							<div class="button" id="new_mp_set_password_button">Create Money Packet</div>
@@ -231,7 +232,7 @@
 							<div class="button" id="new_mp_download_button">Download</div>
 							<p>&nbsp;</p>
 							<div class="link_container">
-								<div class="nav_link" id="new_mp_download_confirm_button">After your money packet is saved, click here to add funds<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="new_mp_download_confirm_button">After your money packet is saved, click here to load funds<img class="link_arrow" src="img/arrow.png"></div>
 								<div class="nav_link" id="new_mp_download_copy_link">I'd rather copy and paste the file contents instead<img class="link_arrow" src="img/arrow.png"></div>
 							</div>
 						</div>
@@ -242,23 +243,23 @@
 							<p>Copy and paste this text into a file on your computer and <span style="color:red"><b>don't lose it.</b></span></p>
 							<p><textarea id="new_mp_copy_textarea" readonly></textarea></p>
 							<div class="link_container">
-								<div class="nav_link" id="new_mp_copy_confirm_button">After your money packet is saved, click here to add funds<img class="link_arrow" src="img/arrow.png"></div>
+								<div class="nav_link" id="new_mp_copy_confirm_button">After your money packet is saved, click here to load funds<img class="link_arrow" src="img/arrow.png"></div>
 							</div>
 						</div>
 					</div>
 					<div id="new_mp_add_page" class="page" style="display:none;">
 						<div>
-							<p>Amount to send:&nbsp;<span id="new_mp_add_symbol"></span>&nbsp;<input placeholder="Optional..." type="text" id="new_mp_add_amt">&nbsp;<span id="new_mp_add_code"></span>&nbsp;<span id="new_mp_add_amt_error"></span></p>
-							<p>This is your money packet's receive address.&nbsp;&nbsp;Send bitcoins to this address to load funds.</p>
-							<p id="new_mp_add_waiting" style="text-align:center;color:green">Waiting for funds...</p>
+							<p>Optionally enter amounts to load and tip:
+							<div class="amt_container">
+								<div class="amt_row" style="background-color:rgba(255, 255, 255, 0.0);">Amount to load:<span class="amt_right"><span style="float:left" id="new_mp_add_amt_error"></span>&nbsp;<span class="unit_symbol"></span>&nbsp;<input type="text" placeholder="Optional" id="new_mp_add_amt">&nbsp;<span class="unit_code"></span></span></div>
+								<div class="amt_row" style="background-color:rgba(200, 200, 200, 0.0);">Amount to tip:<span class="amt_right"><span style="float:left" id="new_mp_tip_amt_error"></span>&nbsp;<span class="unit_symbol"></span>&nbsp;<input type="text" placeholder="0.00" id="new_mp_tip_amt">&nbsp;<span class="unit_code"></span></span></div>
+								<div class="amt_row" style="background-color:rgba(255, 255, 255, 0.0);"><hr style="margin:5px 0 0 0;padding:0">Total:<span class="amt_right"><span id="new_mp_total"><span class="unit_symbol"></span>&nbsp;<span class="mock_input" id="new_mp_total_amt"></span>&nbsp;<span class="unit_code"></span></span><span id="new_mp_total_msg"></span></span></div>
+							</div>
+							<p>Send bitcoins to this address to load your money packet at any time:</p>
 							<div style="width:100%;text-align:center"><a id="new_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></a></div>
 							<div id="new_mp_qrcode_address" style="text-align:center;"></div>
 							<div id="new_mp_add_btc_conversion" style="text-align:center;">&nbsp;</div>
-							<p>Deduct $1 from the amount you send to tip this service?</p>
-							<ul class="tip_links" style="text-align:center;">
-								<li id="tip0" onclick="on_tip('tip0')" class="tip_link">No thanks</li>
-								<li id="tip1" onclick="on_tip('tip1')" class="tip_link">Sure ♥</li>
-							</ul>
+							<div id="new_mp_add_waiting" style="text-align:center;color:green;padding-top:5px;">Waiting for funds...</div>
 						</div>
 					</div>
 					<div id="new_mp_add_done_page" class="page" style="display:none;">
@@ -278,7 +279,7 @@
 				<div id="right_div"><img id="right_arrow" class="nav_arrow" src="img/arrow.png"></div>
 			</div>
 			<div id="footer_div">
-				<div id="footer_links"><a href="https://github.com/woodser/moneypacket.org" target="_blank">source</a> | <a href="changelog.txt" target="_blank">version 0.23 beta</a></div>
+				<div id="footer_links"><a href="https://github.com/woodser/moneypacket.org" target="_blank">source</a> | <a href="changelog.txt" target="_blank">version 0.24 beta</a></div>
 				<div id="tips">Tips: 1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo</div>
 				<div id="legal">&#169;2015 moneypacket.org.  JavaScript copyrights included in the source.  No warranty.</div>
 			</div>
