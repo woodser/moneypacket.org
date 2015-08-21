@@ -1,10 +1,4 @@
 /**
- * HIGH
- * - mBTC
- * - remove case requirements
- * - change tip to input
- * cross browser testing
- * 
  * MEDIUM:
  * zero fee transaction
  * gpg
