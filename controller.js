@@ -1,4 +1,7 @@
-/** 
+/**
+ * HIGH
+ * collapse flows, create new money packet rolls into transactions
+ * 
  * MEDIUM:
  * zero fee transaction
  * gpg
