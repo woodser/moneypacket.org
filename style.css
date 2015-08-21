@@ -107,14 +107,14 @@ img[src="img/btc_logo.png"] {
 	margin:0;
 	position:relative;
 	overflow:hidden;
-	width:810px;
+	width:850px;
 	height:510px;
 	border:solid;
 }
 
 #background_page {
 	background-image: url('img/envelope.png');
-	background-size:810px 510px;
+	background-size:850px 510px;
 	opacity:0.11;
 }
 
@@ -221,7 +221,7 @@ label {
 
 .checkmark_line {
 	line-height:30px;
-	font-size:18px;
+	font-size:19px;
 }
 
 .link_container {
