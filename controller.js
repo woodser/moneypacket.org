@@ -1,4 +1,4 @@
-/**
+/** 
  * MEDIUM:
  * zero fee transaction
  * gpg
@@ -13,6 +13,7 @@
  * FAQ and/or video
  * link to where you can spend bitcoins on success screens
  * breadcrumb trail?
+ * auto-delete invalid paste
  * 
  * LOW:
  * super streamlined claim option?

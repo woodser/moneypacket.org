@@ -56,7 +56,7 @@ img[src="img/btc_logo.png"] {
 
 #body_div {
 	margin-bottom:40px;
-	min-width:1000px;
+	min-width:950px;
 }
 
 
@@ -107,14 +107,14 @@ img[src="img/btc_logo.png"] {
 	margin:0;
 	position:relative;
 	overflow:hidden;
-	width:850px;
+	width:825px;
 	height:510px;
 	border:solid;
 }
 
 #background_page {
 	background-image: url('img/envelope.png');
-	background-size:850px 510px;
+	background-size:825px 510px;
 	opacity:0.11;
 }
 
