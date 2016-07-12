@@ -67,7 +67,6 @@ var new_mp_public_address;
 var new_mp_listener;
 var new_mp_network_info;
 var new_mp_balance;
-var new_mp_add_done_tip;
 var exchange_rates = null;
 var online = true;
 var bip38;
@@ -166,7 +165,6 @@ $(document).ready(function() {
 	$("#new_mp_download_confirm_button").click(on_new_mp_download_confirm_button);
 	$("#new_mp_copy_confirm_button").click(on_new_mp_copy_confirm_button);
 	$("#new_mp_add_amt").on("input", function() { on_new_mp_add_amt(); });
-	$("#new_mp_tip_amt").on("input", function() { on_new_mp_tip_amt(); });
 	$("#new_mp_add_home_link").click(function() { page_manager.move("home_page"); });
 });
 
@@ -356,13 +354,9 @@ function PageManager(start_id) {
 			$("#new_mp_qrcode").empty();
 			$("#new_mp_qrcode_address").text("");
 			$("#new_mp_add_amt").val("");
-			$("#new_mp_tip_amt").val("");
 			$("#new_mp_add_amt_error").text("");
-			$("#new_mp_tip_amt_error").text("");
 			update_unit_labels();
 			$("#new_mp_add_btc_conversion").html("&nbsp;");
-			$("#new_mp_total").hide();
-			$("#new_mp_total_msg").css("font-style", "italic").text("").show();
 			
 			// draw qr code
 			$("#new_mp_qrcode").empty();
@@ -374,11 +368,7 @@ function PageManager(start_id) {
 			});
 			$("#new_mp_qrcode_address").text(new_mp_public_address);
 		case "new_mp_add_done_page":
-			if (new_mp_add_done_tip) {
-				$("#new_mp_add_done_msg").text("Thank you for the tip!!!");
-			} else {
-				$("#new_mp_add_done_msg").text("Funds added successfully!");
-			}
+			$("#new_mp_add_done_msg").text("Funds added successfully!");
 			break;
 		default:
 			break;
@@ -845,7 +835,7 @@ function get_mp_name() {
 	if (min < 10) min = "0" + min;
 	var sec = date.getSeconds();
 	if (sec < 10) sec = "0" + sec;
-	return "money_" + year + month + day + hour + min + ".txt";
+	return "money_packet_" + year + month + day + hour + min + ".txt";
 }
 
 /**
@@ -1222,21 +1212,6 @@ function on_new_mp_add_amt() {
 }
 
 /**
- * Handles when a user types into the tip box for a new mp.
- */
-function on_new_mp_tip_amt() {
-	var amt = $("#new_mp_tip_amt").val();
-	var msg = validate_non_negative(amt);
-	var error = $("#new_mp_tip_amt_error");
-	if (msg == "Valid" || msg == "Amount is blank" || amt == ".") {
-		error.css("color", "black").text("");
-	} else {
-		error.css("color", "red").text(msg);
-	}
-	update_new_mp_total_amt();
-}
-
-/**
  * Updates the totals on the new mp load screen.
  */
 function update_new_mp_total_amt() {
@@ -1244,15 +1219,7 @@ function update_new_mp_total_amt() {
 	var load_msg = validate_non_negative(load_val);
 	if (load_msg == "Valid") {
 		var total_sats = unit_to_satoshis(parseFloat(load_val));
-		var tip_val = $("#new_mp_tip_amt").val();
-		var tip_msg = validate_non_negative(tip_val);
-		if (tip_msg == "Valid") total_sats += unit_to_satoshis(parseFloat(tip_val));
 		var total_btc = satoshis_to_btc(total_sats);
-		
-		// update total row
-		$("#new_mp_total").show();
-		$("#new_mp_total_amt").text(satoshis_to_unit_str(total_sats, 2));
-		$("#new_mp_total_msg").hide();
 		
 		// update qr code
 		$("#new_mp_qrcode").empty();
@@ -1267,9 +1234,6 @@ function update_new_mp_total_amt() {
 		$("#new_mp_add_btc_conversion").text(total_btc + " BTC");
 		
 	} else {
-		// update total row
-		$("#new_mp_total").hide();
-		$("#new_mp_total_msg").css("font-style", "italic").text("").show();
 		
 		// update qr code
 		$("#new_mp_qrcode").empty();
@@ -1313,30 +1277,6 @@ function on_new_mp_balance(err, amt, utxos, tx) {
 }
 
 function on_new_mp_funds_received() {
-	// process tip
-	var tip_val = $("#new_mp_tip_amt").val();
-	var msg = validate_positive_amt(tip_val);
-	if (msg == "Valid") {
-		var tx = new_mp_network_info.tx;
-		var tx_fee = tx.getFee();
-		var tip_amt = unit_to_satoshis(parseFloat(tip_val), 0);
-		if (tip_amt - tx_fee > 0) {
-			new_mp_add_done_tip = true;
-			update_new_mp_balances(new_mp_balance - tip_amt);
-			tx.to(DEBUG ? DEBUG_TIP_ADDRESS : TIP_ADDRESS, tip_amt - tx_fee).sign(new_mp_private_key);
-			try {
-				insight.broadcast(tx, function(err, txid) {
-					if (err) {
-						throw err;
-					}
-				});
-			} catch (err) {
-				console.log("Error processing tip: " + err);
-			}
-		}
-	} else {
-		new_mp_add_done_tip = false;
-	}
 	
 	// advance page if new funds received
 	if (page_manager.current() == "new_mp_add_page") {

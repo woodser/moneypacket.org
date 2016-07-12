@@ -50,3 +50,9 @@ moneypacket.org-v0.24
 - Removed password case requirements; password must be at least 6 characters
 - Changed tip process to accept user input instead of yes/no
 - Cosmetics and wording
+
+07/12/2016
+moneypacket.org-v0.25
+- Removed tip functionality for simplicity during money packet creation
+- Updated terminology to keep password separate from money packet
+- Updated year to 2016 and version to 0.25 beta
