@@ -72,7 +72,7 @@ var online = true;
 var bip38;
 
 // constants
-var NETWORK_REFRESH_RATE = 5000;
+var NETWORK_REFRESH_RATE = 4000;
 var EXCHANGE_RATE_REFRESH_RATE = 30000;
 var TIP_ADDRESS = "1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo";
 var EDGE_WIDTH = 150;
