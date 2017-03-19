@@ -72,8 +72,8 @@ var online = true;
 var bip38;
 
 // constants
-var NETWORK_REFRESH_RATE = 1000;
-var EXCHANGE_RATE_REFRESH_RATE = 60000;
+var NETWORK_REFRESH_RATE = 5000;
+var EXCHANGE_RATE_REFRESH_RATE = 30000;
 var TIP_ADDRESS = "1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo";
 var EDGE_WIDTH = 150;
 var PREFERRED_UNIT_DEFAULT = "USD";
@@ -88,6 +88,10 @@ var isIE = /*@cc_on!@*/false || !!document.documentMode;
  * Document initialization.
  */
 $(document).ready(function() {
+	
+	// use cache to remove ?_123451234 extra query parameter
+	$.ajaxSetup({ cache: true });
+	
 	// load bitcore asynchronously
 	jQuery.getScript("lib/bitcore.js", function(script, status) {
 		jQuery.getScript("lib/bitcore-explorers.js", function(script, status) {
@@ -107,7 +111,7 @@ $(document).ready(function() {
 	//$(window).resize(function() { $("#center_div").width($(window).width() - EDGE_WIDTH); });
 	//$("#preferred_unit_div").width($(window).width() - EDGE_WIDTH);
 	//$(window).resize(function() { $("#preferred_unit_div").width($(window).width() - EDGE_WIDTH); });
-	$.ajaxSetup({ cache: false });
+	//$.ajaxSetup({ cache: false }); TODO: why was cache disabled in the first place? (re-enabled to remove _?123451234 extra query parameter)
 	new exchange_rate_listener(EXCHANGE_RATE_REFRESH_RATE);
 	$("#preferred_unit_select").change(on_unit);
 	$("#offline_div").hide();
@@ -1406,19 +1410,30 @@ function exchange_rate_listener(update_interval) {
  * Updates exchange rate data.
  */
 function update_exchange_rates() {
-	jQuery.getJSON("https://bitpay.com/api/rates", null, function(data, textStatus, jqXHR) {
-		if (data != null) {
-			var select = $("#preferred_unit_select");
-			if (!exchange_rates) {
-				data.forEach(function(obj) {
-					if (obj.code != "BTC") select.append($("<option></option>").attr("value", obj.code).text(obj.code));
-				});
-				$("#preferred_unit_select option:contains('" + PREFERRED_UNIT_DEFAULT + "')").prop("selected", true);
-				exchange_rates = data;
-				on_unit();
-			} else {
-				exchange_rates = data;
+	$.ajax({
+		url : "https://bitpay.com/api/rates",
+		type : "get",
+		cache : true,
+		success : function(data, textStatus, jqXHR) {
+			if (data != null) {
+				var select = $("#preferred_unit_select");
+				if (!exchange_rates) {
+					data.forEach(function(obj) {
+						if (obj.code != "BTC") select.append($("<option></option>").attr("value", obj.code).text(obj.code));
+					});
+					$("#preferred_unit_select option:contains('" + PREFERRED_UNIT_DEFAULT + "')").prop("selected", true);
+					exchange_rates = data;
+					on_unit();
+				} else {
+					exchange_rates = data;
+				}
 			}
+		},
+		error : function(jqxhr, textStatus, error) {
+			console.log("Error fetching rates");
+			console.log(jqxhr);
+			console.log(textStatus);
+			console.log(error);
 		}
 	});
 }
