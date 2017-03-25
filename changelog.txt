@@ -1,4 +1,5 @@
 moneypacket.org
+support@moneypacket.org
 Email bitcoins as an attachment. No account or trusted third parties.
 Tips: 1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo
 
@@ -56,3 +57,12 @@ moneypacket.org-v0.25
 - Removed tip functionality for simplicity during money packet creation
 - Updated terminology to keep password separate from money packet
 - Updated year to 2016 and version to 0.25 beta
+
+03/25/2017
+moneypacket.org-v1.0
+- Fix fiat units not showing
+- Fewer address listener polls to not spam BitPay
+- Added support email address
+- Replace alerts for BIP38 encryption/decryption with notes in Advanced section
+- Minor cosmetic and verbage updates
+- Updated copyright to 2017 and version to 1.0 :)

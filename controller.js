@@ -541,22 +541,20 @@ function on_unlock() {
 			imported_private_key = sjcl.decrypt($("#import_password").val(), imported_mp.privateKey);
 			on_success();
 		} else if (imported_mp.encryption == "bip38") {
-			if (confirm("Your browser may freeze for a moment during BIP38 decryption.  Continue?")) {
-				$("#import_password_msg").css("color","green").text("BIP38 decrypting, please wait...");
-				setTimeout(function() {	// delay encryption so message displays
-					var decrypted = bip38.decrypt(imported_mp.privateKey, $("#import_password").val());
-					
-					// compare stated public address to derived public address to check password
-					// TODO: would be nice if BIP38 did the password check instead, then publicAddress would not be needed
-					var derived_public_address = bitcore.PrivateKey.fromWIF(decrypted).toAddress().toString();
-					if (derived_public_address != imported_mp.publicAddress) {
-						on_fail();
-					} else {
-						imported_private_key = decrypted;
-						on_success();
-					}
-				}, 50);
-			}
+			$("#import_password_msg").css("color","green").text("BIP38 decrypting, please wait...");
+			setTimeout(function() {	// delay encryption so message displays
+				var decrypted = bip38.decrypt(imported_mp.privateKey, $("#import_password").val());
+				
+				// compare stated public address to derived public address to check password
+				// TODO: would be nice if BIP38 did the password check instead, then publicAddress would not be needed
+				var derived_public_address = bitcore.PrivateKey.fromWIF(decrypted).toAddress().toString();
+				if (derived_public_address != imported_mp.publicAddress) {
+					on_fail();
+				} else {
+					imported_private_key = decrypted;
+					on_success();
+				}
+			}, 50);
 		} else {
 			console.error("Invalid encryption scheme: " + imported_mp_encryption);
 			on_fail();
@@ -693,17 +691,15 @@ function on_claim_mp_set_password() {
 		var claim_mp_private_key = bitcore.PrivateKey();
 		claim_mp_public_address = claim_mp_private_key.toAddress().toString();
 		if ($("#claim_mp_bip38_checkbox").is(":checked")) {
-			if (confirm("Your browser may freeze for a moment during BIP38 encryption.  Continue?")) {
-				$("#claim_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
-				setTimeout(function() {	// hack to show encrypting message
-					claim_mp = {};
-					claim_mp["publicAddress"] = claim_mp_private_key.toAddress().toString();
-					claim_mp["privateKey"] = bip38.encrypt(claim_mp_private_key.toWIF(), password1.val(), claim_mp_private_key.toAddress().toString());
-					claim_mp["encryption"] = "bip38";
-					page_manager.next("claim_mp_download_page");
-					$("#claim_mp_password_msg").css("color","black").text("");
-				}, 50);
-			}
+			$("#claim_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
+			setTimeout(function() {	// hack to show encrypting message
+				claim_mp = {};
+				claim_mp["publicAddress"] = claim_mp_private_key.toAddress().toString();
+				claim_mp["privateKey"] = bip38.encrypt(claim_mp_private_key.toWIF(), password1.val(), claim_mp_private_key.toAddress().toString());
+				claim_mp["encryption"] = "bip38";
+				page_manager.next("claim_mp_download_page");
+				$("#claim_mp_password_msg").css("color","black").text("");
+			}, 50);
 		} else {
 			claim_mp = {};
 			claim_mp["privateKey"] = sjcl.encrypt(password1.val(), claim_mp_private_key.toWIF(), { iter:DEFAULT_ITER });
@@ -745,17 +741,15 @@ function on_new_mp_set_password() {
 		new_mp_private_key = bitcore.PrivateKey();
 		new_mp_public_address = new_mp_private_key.toAddress().toString();
 		if ($("#new_mp_bip38_checkbox").is(":checked")) {
-			if (confirm("Your browser may freeze for a moment during BIP38 encryption.  Continue?")) {
-				$("#new_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
-				setTimeout(function() {	// hack to show encrypting message
-					new_mp = {};
-					new_mp["publicAddress"] = new_mp_private_key.toAddress().toString();
-					new_mp["privateKey"] = bip38.encrypt(new_mp_private_key.toWIF(), password1.val(), new_mp_private_key.toAddress().toString());
-					new_mp["encryption"] = "bip38";
-					page_manager.next("new_mp_download_page");
-					$("#new_mp_password_msg").css("color","black").text("");
-				}, 50);
-			}
+			$("#new_mp_password_msg").css("color","green").text("BIP38 encrypting, please wait...");
+			setTimeout(function() {	// hack to show encrypting message
+				new_mp = {};
+				new_mp["publicAddress"] = new_mp_private_key.toAddress().toString();
+				new_mp["privateKey"] = bip38.encrypt(new_mp_private_key.toWIF(), password1.val(), new_mp_private_key.toAddress().toString());
+				new_mp["encryption"] = "bip38";
+				page_manager.next("new_mp_download_page");
+				$("#new_mp_password_msg").css("color","black").text("");
+			}, 50);
 		} else {
 			new_mp = {};
 			new_mp["privateKey"] = sjcl.encrypt(password1.val(), new_mp_private_key.toWIF(), { iter:DEFAULT_ITER });

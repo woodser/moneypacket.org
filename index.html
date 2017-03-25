@@ -18,7 +18,7 @@
 	<body>
 		<div id="container">
 			<div id="top_div">
-				<div id="title_div"><img src="img/btc_logo.png"><a href="index.html" id="title">moneypacket.org</a></div><br>
+				<div id="title_div"><a href="index.html"><img src="img/btc_logo.png"></a><a href="index.html" id="title">moneypacket.org</a></div><br>
 				<div id="subtitle_div">Email bitcoins as an attachment.  No account or wallet necessary.</div>
 			</div>
 			<div id="header_div">
@@ -112,16 +112,19 @@
 							<p>The password must be at least 6 characters.</p>
 							<p>Password: <input type="password" id="claim_mp_password1"></input>&nbsp;&nbsp;&nbsp;&nbsp;Confirm: <input type="password" id="claim_mp_password2"></input></p>
 							<p id="claim_mp_password_msg" style="color:red;"></p>
-							<div class="button" id="claim_mp_set_password_button">Create New Money Packet</div>
 							<p><a href="#" onclick="event.preventDefault();" id="claim_mp_advanced_link">Advanced</a></p>
-							<p id="claim_mp_advanced_div" style="text-indent:10px;"><input type="checkbox" id="claim_mp_bip38_checkbox">&nbsp; BIP38 private key encryption (slow but very secure)</p>
+							<div id="claim_mp_advanced_div">
+								<p style="text-indent:10px;"><input type="checkbox" id="claim_mp_bip38_checkbox">&nbsp; BIP38 private key encryption (slow but very secure).</p>
+								<p style="text-indent:42px;">Your browser may freeze for a moment while BIP38 encryption is performed.</p>
+							</div>
+							<div class="button" id="claim_mp_set_password_button">Create New Money Packet</div>
 						</div>
 					</div>
 					<div id="claim_mp_download_page" class="page" style="display:none;">
 						<div>
 							<p>Your new money packet envelope has been created.</p>
 							<p>For safe keeping, lets save your new money packet before we transfer funds to it.</p>
-							<p>Remember where you save your money packet!</p>
+							<p><span style="color:red"><b>Remember where you save your money packet!</b></span></p>
 							<div class="button" id="claim_mp_download_button">Download</div>
 							<p>&nbsp;</p>
 							<div class="link_container">
@@ -161,7 +164,7 @@
 							<div class="button" id="claim_mp_done_another_link">Make another transaction</div>
 							<div class="button" id="claim_mp_done_home_link">Return to the home page</div>
 							<p>&nbsp;</p>
-							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;For security, don't send a money packet with its password.  Keep them separate.</p>
+							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;<span style="color:red"><b>Do not lose your money packet or password or your funds will be lost.</b></span></p>
 						</div>
 					</div>
 					
@@ -192,7 +195,7 @@
 					<!-- Add funds to existing money packet -->
 					<div id="unlocked_mp_add_page" class="page" style="display:none;">
 						<div>
-							<p>Send bitcoins to this address to load your money packet at any time:</p>
+							<p>Send bitcoins to this address to load your money packet any time now or in the future:</p>
 							<div style="width:100%;text-align:center"><a id="unlocked_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></a></div>
 							<div id="unlocked_mp_qrcode_address" style="text-align:center;"></div>
 							<div id="unlocked_mp_add_btc_conversion" style="text-align:center;">&nbsp;</div>
@@ -219,16 +222,19 @@
 							<p>The password must be at least 6 characters.</p>
 							<p>Password: <input type="password" id="new_mp_password1"></input>&nbsp;&nbsp;&nbsp;&nbsp;Confirm: <input type="password" id="new_mp_password2"></input></p>
 							<p id="new_mp_password_msg" style="color:red;"></p>
-							<div class="button" id="new_mp_set_password_button">Create Money Packet</div>
 							<p><a href="#" onclick="event.preventDefault();" id="new_mp_advanced_link">Advanced</a></p>
-							<p id="new_mp_advanced_div" style="text-indent:10px;"><input type="checkbox" id="new_mp_bip38_checkbox">&nbsp; BIP38 private key encryption (slow but very secure).</p>
+							<div id="new_mp_advanced_div">
+								<p style="text-indent:10px;"><input type="checkbox" id="new_mp_bip38_checkbox">&nbsp; BIP38 private key encryption (slow but very secure).</p>
+								<p style="text-indent:42px;">Your browser may freeze for a moment while BIP38 encryption is performed.</p>
+							</div>
+							<div class="button" id="new_mp_set_password_button">Create Money Packet</div>
 						</div>
 					</div>
 					<div id="new_mp_download_page" class="page" style="display:none;">
 						<div>
 							<p>Your money packet envelope has been created.</p>
 							<p>For safe keeping, lets save it to your device before we add funds.</p>
-							<p>Remember where you save your money packet!</p>
+							<p><span style="color:red"><b>Remember where you save your money packet!</b></span></p>
 							<div class="button" id="new_mp_download_button">Download</div>
 							<p>&nbsp;</p>
 							<div class="link_container">
@@ -249,7 +255,7 @@
 					</div>
 					<div id="new_mp_add_page" class="page" style="display:none;">
 						<div>
-							<p>Send bitcoins to this address to load your money packet at any time:</p>
+							<p>Send bitcoins to this address to load your money packet any time now or in the future:</p>
 							<div style="width:100%;text-align:center"><a id="new_mp_qrcode" class="qrcode" style="width:125px;height:125px;"></a></div>
 							<div id="new_mp_qrcode_address" style="text-align:center;"></div>
 							<div id="new_mp_add_btc_conversion" style="text-align:center;">&nbsp;</div>
@@ -267,16 +273,16 @@
 							<p>&nbsp;</p>
 							<div class="button" id="new_mp_add_home_link">Return to the home page</div>
 							<p>&nbsp;</p>
-							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;For security, don't send a money packet with its password.  Keep them separate.</p>
+							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;<span style="color:red"><b>Do not lose your money packet or password or your funds will be lost.</b></span></p>
 						</div>
 					</div>
 				</div>
 				<div id="right_div"><img id="right_arrow" class="nav_arrow" src="img/arrow.png"></div>
 			</div>
 			<div id="footer_div">
-				<div id="footer_links"><a href="https://github.com/woodser/moneypacket.org" target="_blank">source</a> | <a href="changelog.txt" target="_blank">version 0.25 beta</a></div>
+				<div id="footer_links"><a href="https://github.com/woodser/moneypacket.org" target="_blank">Source</a> | <a href="mailto:support@moneypacket.org?Subject=Support" target="_top">Support</a> | <a href="changelog.txt" target="_blank">Version 1.0</a></div>
 				<div id="tips">Tips: 1B2Bq6YXkguYWwBG68iDGFXzDcN89USryo</div>
-				<div id="legal">&#169;2016 moneypacket.org.  JavaScript copyrights included in the source.  No warranty.</div>
+				<div id="legal">&#169; 2017 moneypacket.org.  JavaScript copyrights included in the source.  No warranty.</div>
 			</div>
 		</div>
 	</body>
