@@ -112,9 +112,9 @@
 							<p>The password must be at least 6 characters.</p>
 							<p>Password: <input type="password" id="claim_mp_password1"></input>&nbsp;&nbsp;&nbsp;&nbsp;Confirm: <input type="password" id="claim_mp_password2"></input></p>
 							<p id="claim_mp_password_msg" style="color:red;"></p>
-							<div class="button" id="claim_mp_set_password_button">Create New Money Packet</div>
 							<p><a href="#" onclick="event.preventDefault();" id="claim_mp_advanced_link">Advanced</a></p>
 							<p id="claim_mp_advanced_div" style="text-indent:10px;"><input type="checkbox" id="claim_mp_bip38_checkbox">&nbsp; BIP38 private key encryption (slow but very secure)</p>
+							<div class="button" id="claim_mp_set_password_button">Create New Money Packet</div>
 						</div>
 					</div>
 					<div id="claim_mp_download_page" class="page" style="display:none;">
@@ -161,7 +161,7 @@
 							<div class="button" id="claim_mp_done_another_link">Make another transaction</div>
 							<div class="button" id="claim_mp_done_home_link">Return to the home page</div>
 							<p>&nbsp;</p>
-							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;For security, don't send a money packet with its password.  Keep them separate.</p>
+							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;<span style="color:red"><b>Do not lose your moneypacket or password or your funds will be lost.</b></span></p>
 						</div>
 					</div>
 					
@@ -219,9 +219,9 @@
 							<p>The password must be at least 6 characters.</p>
 							<p>Password: <input type="password" id="new_mp_password1"></input>&nbsp;&nbsp;&nbsp;&nbsp;Confirm: <input type="password" id="new_mp_password2"></input></p>
 							<p id="new_mp_password_msg" style="color:red;"></p>
-							<div class="button" id="new_mp_set_password_button">Create Money Packet</div>
 							<p><a href="#" onclick="event.preventDefault();" id="new_mp_advanced_link">Advanced</a></p>
 							<p id="new_mp_advanced_div" style="text-indent:10px;"><input type="checkbox" id="new_mp_bip38_checkbox">&nbsp; BIP38 private key encryption (slow but very secure).</p>
+							<div class="button" id="new_mp_set_password_button">Create Money Packet</div>
 						</div>
 					</div>
 					<div id="new_mp_download_page" class="page" style="display:none;">
@@ -267,7 +267,7 @@
 							<p>&nbsp;</p>
 							<div class="button" id="new_mp_add_home_link">Return to the home page</div>
 							<p>&nbsp;</p>
-							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;For security, don't send a money packet with its password.  Keep them separate.</p>
+							<p><img src="img/warning.jpg" class="warning_img">&nbsp;&nbsp;<span style="color:red"><b>Do not lose your moneypacket or password or your funds will be lost.</b></span></p>
 						</div>
 					</div>
 				</div>
