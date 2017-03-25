@@ -84,6 +84,12 @@ img[src="img/btc_logo.png"] {
 	margin-bottom:10px;
 }
 
+#legal > a {
+	font-size:15px;
+	margin-top:0px;
+	margin-bottom:10px;
+}
+
 #header_div {	
 	display:inline-block;
 	margin:0;
