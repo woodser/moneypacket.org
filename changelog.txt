@@ -61,7 +61,7 @@ moneypacket.org-v0.25
 03/25/2017
 moneypacket.org-v1.0
 - Fix fiat units not showing
-- Fix address listener to not spam BitPay
+- Fewer address listener polls to not spam BitPay
 - Added support email address
 - Replace alerts for BIP38 encryption/decryption with notes in Advanced section
 - Minor cosmetic and verbage updates
